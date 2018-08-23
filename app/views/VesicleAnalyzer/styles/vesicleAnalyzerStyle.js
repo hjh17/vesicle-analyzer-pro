@@ -1,22 +1,19 @@
 const vesicleAnalyzerStyle = {
-    container: {
-      position: 'absolute',
-      top: '30%',
-      left: '10px',
-      textAlign: 'center',
-      h2: {
-          fontSize: '5rem'
-        },
-        a: {
-          fontSize: '1.4rem'
-        }
+  container: {
+    position: 'absolute',
+    top: '10%',
+    left: '10px',
+    textAlign: 'center',
+    h2: {
+      fontSize: '5rem'
     },
-    button: {
-        marginTop: "30px"
-    },
+    a: {
+      fontSize: '1.4rem'
+    }
+  },
+  button: {
+    marginTop: '30px'
+  }
+};
 
-  
-  };
-  
-  export default vesicleAnalyzerStyle;
-  
+export default vesicleAnalyzerStyle;
