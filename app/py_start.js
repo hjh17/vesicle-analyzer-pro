@@ -45,15 +45,15 @@ console.log("ENV: ", process.env.NODE_ENV)
 
   if (process.env.NODE_ENV === 'development') {
     console.info(`PythonDevelopLocation:${PYTHON_DIR}`);
-    console.log("Develope mode")
+    console.log("Development mode")
     pyProc = child_process.spawn('python', [PYTHON_DIR,'4242'],{
       "stdio": ['ignore', process.stdout, process.stderr]
     } );
   } else {
     console.info(`PythonStartLocation:${RUNNING_PYTHON_DIR}`);
-    console.log(path.join(RUNNING_PYTHON_DIR, 'start'))
-    //TODO: Insert relative path here
-    pyProc = child_process.execFile("/home/hjortur/testing/test/pydist/start", (error, stdout, stderr) => {
+    console.log(path.join(RUNNING_PYTHON_DIR, 'pydist', 'start'))
+    //TODO: have to make yarn start and yarn package point to the same relative path here
+    pyProc = child_process.execFile(path.join(RUNNING_PYTHON_DIR, 'start'), (error, stdout, stderr) => {
       if (error) {
         throw error;
       }
