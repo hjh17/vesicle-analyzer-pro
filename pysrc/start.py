@@ -26,7 +26,7 @@ def main(port):
     server.register(RadiusFinder())
     s = zerorpc.Server(server)
     s.bind(addr);
-    print("start running on {} lol".format(addr))
+    print("start running on {}. Python: {}".format(addr, sys.version))
     s.run()
 
 if __name__=="__main__":
