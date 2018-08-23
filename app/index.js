@@ -6,9 +6,13 @@ import Root from './containers/Root';
 import { configureStore, history } from './store/configureStore';
 import './app.global.css';
 
+const Promise = require('bluebird');
+// const remote = Promise.promisifyAll(require("electron").remote)
+
 const store = configureStore();
 
 window.client = remote.getCurrentWindow().client;
+window.client.invoke = Promise.promisify(window.client.invoke);
 
 render(
   <AppContainer>
