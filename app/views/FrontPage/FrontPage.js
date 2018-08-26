@@ -45,7 +45,6 @@ class FrontPage extends Component<Props> {
             Get Started{' '}
           </Button>
         </Link>
-        {this.state.msg}
       </div>
     );
   }
