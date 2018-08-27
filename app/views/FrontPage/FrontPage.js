@@ -18,7 +18,7 @@ class FrontPage extends Component<Props> {
       msg: "No response from python"
   }
 
-  componentDidMount() {
+/*   componentDidMount() {
     console.log(window);
     window.client.invoke('hello', 'Hello from python:  ', (error, result) => {
         this.setState({msg: result})
@@ -27,7 +27,7 @@ class FrontPage extends Component<Props> {
     window.client.invoke('', (error, result) => {
       console.log(error, result);
     });
-  }
+  } */
 
   render() {
     const { classes } = this.props;
@@ -45,7 +45,7 @@ class FrontPage extends Component<Props> {
             Get Started{' '}
           </Button>
         </Link>
-        {this.state.msg}
+
       </div>
     );
   }
