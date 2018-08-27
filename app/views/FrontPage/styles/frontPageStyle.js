@@ -5,16 +5,19 @@ const frontPageStyle = {
     left: '10px',
     textAlign: 'center',
     h2: {
-        fontSize: '5rem'
-      },
-      a: {
-        fontSize: '1.4rem'
-      }
+      fontSize: '5rem'
+    },
+    a: {
+      fontSize: '1.4rem'
+    }
   },
   button: {
-      marginTop: "30px"
+    marginTop: '30px',
+    backgroundColor: '#ff9108',
+    '&:hover': {
+      backgroundColor: 'rgb(255, 189, 58)'
+    }
   }
-
 };
 
 export default frontPageStyle;

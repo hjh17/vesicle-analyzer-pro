@@ -8,6 +8,22 @@
 `yarn package-win`
 `chown -R hjortur release/`
 
+# notes
+
+OSX: brew install pkg-config
+
+Node version: 10.8.0
+
+yarn version: 1.9.4
+
+Color scheme:
+
+#00d8ff
+
+#ff9108
+
+#ff0900
+
 <br>
 
 <p align="center">
