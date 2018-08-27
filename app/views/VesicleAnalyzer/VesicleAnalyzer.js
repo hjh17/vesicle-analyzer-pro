@@ -5,10 +5,15 @@ import { Link } from 'react-router-dom';
 import withStyles from '@material-ui/core/styles/withStyles';
 import Button from '@material-ui/core/Button';
 import { remote } from 'electron';
+
+import fs from 'fs';
+import LinearProgress from '@material-ui/core/LinearProgress';
 import vesicleAnalyzerStyle from './styles/vesicleAnalyzerStyle';
 import routes from '../../constants/routes.json';
 
 import ImageContainer from './containers/ImageContainer';
+import TreeView from './components/TreeView';
+import LoadingDialog from './components/LoadingDialog';
 
 type Props = {
   classes: object
@@ -17,17 +22,23 @@ type Props = {
 class VesicleAnalyzer extends Component<Props> {
   props: Props;
 
-  state = {
-    imgData: null,
-    err: null,
-    res: null,
-    loadingOriginal: false,
-    loadingProcessed: false,
-    loadingDetectedCircles: false,
-    originalImg: null,
-    processedImg: null,
-    detectedImg: null
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      imgData: null,
+      err: null,
+      res: null,
+      loadingOriginal: false,
+      loadingProcessed: false,
+      loadingDetectedCircles: false,
+      originalImg: null,
+      processedImg: null,
+      detectedImg: null,
+      treeObject: null,
+      completed: 0,
+      isCalculating: false
+    };
+  }
 
   /*   componentDidMount() {
     console.log(window);
@@ -79,10 +90,10 @@ class VesicleAnalyzer extends Component<Props> {
     );
   };
 
-  onClickProcess = () => {
+  onClickProcess = filePath => {
     this.setState({ loadingProcessed: true });
     window.client
-      .invoke('process_image')
+      .invoke('process_image', filePath)
       .then(result => {
         const res = JSON.parse(result);
         return this.setState({
@@ -96,12 +107,10 @@ class VesicleAnalyzer extends Component<Props> {
       });
   };
 
-  onClickDetect = () => {
+  onClickDetect = filePath => {
     this.setState({ loadingDetectedCircles: true });
     window.client
-      .invoke(
-        'detect_circles'
-      )
+      .invoke('detect_circles', filePath)
       .then(result => {
         const res = JSON.parse(result);
         return this.setState({
@@ -118,22 +127,119 @@ class VesicleAnalyzer extends Component<Props> {
   onClickCalculate = () => {
     this.setState({ loadingProcessed: true });
     window.client
-    .invoke(
-      'get_original',
-      '/home/hjortur/workspace/vesicle_analyzer/test.tif'
-    )
+      .invoke(
+        'get_original',
+        '/home/hjortur/workspace/vesicle_analyzer/test.tif'
+      )
       .then(result => {
         const res = JSON.parse(result);
         return this.setState({
           originalImg: res.img_data,
           loadingOriginal: false
         });
-      }).then(this.onClickProcess).then(this.onClickDetect)
+      })
+      .then(this.onClickProcess)
+      .then(this.onClickDetect)
       .catch(error => {
         this.setState({ loadingOriginal: false });
         console.log('Caught error from client:', error);
       });
+  };
 
+  onClickTest = () => {
+    remote.dialog.showOpenDialog(
+      {
+        properties: ['openDirectory']
+      },
+      files => {
+        const treeObject = [];
+        const fileNames = fs.readdirSync(files[0]);
+        this.setState({ isCalculating: true });
+        fileNames.forEach((file, idx) => {
+          treeObject.push({
+            name: file,
+            path: `${files[0]}/${file}`,
+            key: idx
+          });
+          this.setState({
+            loadingProcessed: true,
+            loadingDetectedCircles: true,
+            loadingOriginal: true
+          });
+          window.client
+            .invoke('get_original', `${files[0]}/${file}`)
+            .then(result => {
+              const res = JSON.parse(result);
+              return this.setState({
+                originalImg: res.img_data,
+                loadingOriginal: false
+              });
+            })
+            .then(res => this.onClickProcess(`${files[0]}/${file}`))
+            .then(res => this.onClickDetect(`${files[0]}/${file}`))
+            .then(res =>
+              this.setState(prevState => {
+                if (prevState.completed + 1 / fileNames.length < 1)
+                  return {
+                    completed: prevState.completed + 1 / fileNames.length
+                  };
+                return {
+                  completed: prevState.completed + 1 / fileNames.length,
+                  isCalculating: false
+                };
+              })
+            )
+            .catch(error => {
+              this.setState({ loadingOriginal: false });
+              this.setState(prevState => ({
+                completed: prevState.completed + (1 / fileNames.length) * 100
+              }));
+              console.log('Caught error from client:', error);
+            });
+        });
+        this.setState({ treeObject });
+      }
+    );
+  };
+
+  /*   onClickTest = () => {
+    remote.dialog.showOpenDialog(
+      {
+        properties: ['openDirectory']
+      },
+      files => {
+        const treeObject = [];
+        fs.readdirSync(files[0]).forEach((file, idx) => {
+          
+          treeObject.push({'name': file, 'path': `${files[0]}/${file}`, 'key': idx})
+        })
+        this.setState({treeObject})
+      }
+      
+    );
+  }; */
+
+  onClickTree = treeEntry => {
+    this.setState({
+      loadingProcessed: true,
+      loadingDetectedCircles: true,
+      loadingOriginal: true
+    });
+    window.client
+      .invoke('get_original', treeEntry.path)
+      .then(result => {
+        const res = JSON.parse(result);
+        return this.setState({
+          originalImg: res.img_data,
+          loadingOriginal: false
+        });
+      })
+      .then(res => this.onClickProcess(treeEntry.path))
+      .then(res => this.onClickDetect(treeEntry.path))
+      .catch(error => {
+        this.setState({ loadingOriginal: false });
+        console.log('Caught error from client:', error);
+      });
   };
 
   render() {
@@ -145,48 +251,64 @@ class VesicleAnalyzer extends Component<Props> {
       loadingDetectedCircles,
       originalImg,
       processedImg,
-      detectedImg
+      detectedImg,
+      treeObject,
+      completed,
+      isCalculating
     } = this.state;
+
     return (
-      <div className={classes.container} data-tid="container">
-        <ImageContainer
-          onClickLoad={this.onClickLoad}
-          onClickProcess={this.onClickProcess}
-          onClickDetect={this.onClickDetect}
-          originalImg={originalImg}
-          processedImg={processedImg}
-          detectedImg={detectedImg}
-          loadingOriginal={loadingOriginal}
-          loadingProcessed={loadingProcessed}
-          loadingDetectedCircles={loadingDetectedCircles}
-          res={res}
-        />
-        <Link to={routes.FrontPage}>
+      <div data-tid="container">
+        <div className={classes.treeViewContainer}>
+          <TreeView data={treeObject} onClickTree={this.onClickTree} />
+        </div>
+        <div className={classes.container}>
+          <ImageContainer
+            onClickLoad={this.onClickLoad}
+            onClickProcess={this.onClickProcess}
+            onClickDetect={this.onClickDetect}
+            originalImg={originalImg}
+            processedImg={processedImg}
+            detectedImg={detectedImg}
+            loadingOriginal={loadingOriginal}
+            loadingProcessed={loadingProcessed}
+            loadingDetectedCircles={loadingDetectedCircles}
+            res={res}
+          />
+
+          <Link to={routes.FrontPage}>
+            <Button
+              className={classes.button}
+              variant="contained"
+              color="primary"
+            >
+              {' '}
+              Back{' '}
+            </Button>
+          </Link>
           <Button
             className={classes.button}
             variant="contained"
             color="primary"
+            onClick={this.onClickTest}
           >
-            {' '}
-            Back{' '}
+            Load files a
           </Button>
-        </Link>
-        <Button
-          className={classes.button}
-          variant="contained"
-          color="primary"
-          onClick={this.onClick}
-        >
-          Load files a
-        </Button>
-        <Button
-          className={classes.button}
-          variant="contained"
-          color="primary"
-          onClick={this.onClickCalculate}
-        >
-          Calculate
-        </Button>
+          <Button
+            className={classes.button}
+            variant="contained"
+            color="primary"
+            onClick={this.onClickCalculate}
+          >
+            Calculate
+          </Button>
+        </div>
+        <LinearProgress
+          color="secondary"
+          variant="determinate"
+          value={completed * 100}
+        />
+        <LoadingDialog isCalculating={isCalculating} completed={completed} />
       </div>
     );
   }

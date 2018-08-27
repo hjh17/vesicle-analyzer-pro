@@ -1,14 +1,18 @@
 import React, { Component } from 'react';
 import withStyles from '@material-ui/core/styles/withStyles';
 import Button from '@material-ui/core/Button';
+import Slider from '@material-ui/lab/Slider';
 import imageStyle from '../styles/imageStyle';
 import Image from '../components/Image';
+
 import CustomSpinner from '../../../components/Progress/CustomSpinner';
+
 
 type Props = {
   classes: object,
   res: object
 };
+
 
 class ImageContainer extends Component<Props> {
   render() {
@@ -64,6 +68,7 @@ class ImageContainer extends Component<Props> {
             {' '}
             Process Image{' '}
           </Button>
+          <Slider className={classes.slider}  />
         </div>
         <div className={classes.imageBox}>
           <h1>Detected Circles</h1>

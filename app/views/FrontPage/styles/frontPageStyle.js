@@ -1,3 +1,5 @@
+import { second } from "../../../variables/colors"
+
 const frontPageStyle = {
   container: {
     position: 'absolute',
@@ -13,7 +15,7 @@ const frontPageStyle = {
   },
   button: {
     marginTop: '30px',
-    backgroundColor: '#ff9108',
+    backgroundColor: second,
     '&:hover': {
       backgroundColor: 'rgb(255, 189, 58)'
     }
