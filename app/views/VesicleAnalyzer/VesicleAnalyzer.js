@@ -154,8 +154,13 @@ class VesicleAnalyzer extends Component<Props> {
       files => {
         const treeObject = [];
         const fileNames = fs.readdirSync(files[0]);
+        let totalFiles = fileNames.length
         this.setState({ isCalculating: true });
         fileNames.forEach((file, idx) => {
+          if (!file.endsWith('.tif')){
+            totalFiles -=1;
+            return
+          }
           treeObject.push({
             name: file,
             path: `${files[0]}/${file}`,
@@ -179,12 +184,12 @@ class VesicleAnalyzer extends Component<Props> {
             .then(res => this.onClickDetect(`${files[0]}/${file}`))
             .then(res =>
               this.setState(prevState => {
-                if (prevState.completed + 1 / fileNames.length < 1)
+                if (prevState.completed + 1 / totalFiles < 1)
                   return {
-                    completed: prevState.completed + 1 / fileNames.length
+                    completed: prevState.completed + 1 / totalFiles
                   };
                 return {
-                  completed: prevState.completed + 1 / fileNames.length,
+                  completed: prevState.completed + 1 / totalFiles,
                   isCalculating: false
                 };
               })
