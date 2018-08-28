@@ -7,8 +7,6 @@ import os
 import zerorpc
 import gevent
 
-
-
 class RadiusFinder(object):
 
     def __init__(self):
@@ -159,7 +157,6 @@ class RadiusFinder(object):
     def img_to_base64(self, img):
       retval, buffer = cv2.imencode('.jpg', img)
       jpg_as_text = base64.b64encode(buffer)
-
       return jpg_as_text.decode()
 
     def run_analyzes(self, path):
