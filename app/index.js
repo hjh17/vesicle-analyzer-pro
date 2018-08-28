@@ -12,7 +12,7 @@ const Promise = require('bluebird');
 const store = configureStore();
 
 window.client = remote.getCurrentWindow().client;
-window.client.invoke = Promise.promisify(window.client.invoke);
+window.client.invoke_promised = Promise.promisify(window.client.invoke);
 
 render(
   <AppContainer>
