@@ -12,6 +12,11 @@
 
 OSX: brew install pkg-config
 
+```
+lsof -i :4242
+sudo kill - <PID>
+```
+
 Node version: 10.8.0
 
 yarn version: 1.9.4
