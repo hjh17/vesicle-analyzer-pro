@@ -96,10 +96,11 @@ class VesicleAnalyzer extends Component<Props> {
       .invoke('process_image', filePath)
       .then(result => {
         const res = JSON.parse(result);
-        return this.setState({
+        this.setState({
           processedImg: res.img_data,
           loadingProcessed: false
         });
+        return null
       })
       .catch(error => {
         this.setState({ loadingProcessed: false });
@@ -113,10 +114,11 @@ class VesicleAnalyzer extends Component<Props> {
       .invoke('detect_circles', filePath)
       .then(result => {
         const res = JSON.parse(result);
-        return this.setState({
+        this.setState({
           detectedImg: res.img_data.detected_circles,
           loadingDetectedCircles: false
         });
+        return null
       })
       .catch(error => {
         this.setState({ loadingDetectedCircles: false });
@@ -133,13 +135,14 @@ class VesicleAnalyzer extends Component<Props> {
       )
       .then(result => {
         const res = JSON.parse(result);
-        return this.setState({
+        this.setState({
           originalImg: res.img_data,
           loadingOriginal: false
         });
+        return null
       })
-      .then(this.onClickProcess)
-      .then(this.onClickDetect)
+      .then(() => { this.onClickProcess(); return null})
+      .then(() => { this.onClickDetect(); return null})
       .catch(error => {
         this.setState({ loadingOriginal: false });
         console.log('Caught error from client:', error);
@@ -180,8 +183,8 @@ class VesicleAnalyzer extends Component<Props> {
                 loadingOriginal: false
               });
             })
-            .then(res => this.onClickProcess(`${files[0]}/${file}`))
-            .then(res => this.onClickDetect(`${files[0]}/${file}`))
+            .then(res => {this.onClickProcess(`${files[0]}/${file}`); return null})
+            .then(res => {this.onClickDetect(`${files[0]}/${file}`); return null})
             .then(res =>
               this.setState(prevState => {
                 if (prevState.completed + 1 / totalFiles < 1)
@@ -234,13 +237,14 @@ class VesicleAnalyzer extends Component<Props> {
       .invoke('get_original', treeEntry.path)
       .then(result => {
         const res = JSON.parse(result);
-        return this.setState({
+        this.setState({
           originalImg: res.img_data,
           loadingOriginal: false
         });
+        return null
       })
-      .then(res => this.onClickProcess(treeEntry.path))
-      .then(res => this.onClickDetect(treeEntry.path))
+      .then(res => {this.onClickProcess(treeEntry.path); return null})
+      .then(res => {this.onClickDetect(treeEntry.path); return null})
       .catch(error => {
         this.setState({ loadingOriginal: false });
         console.log('Caught error from client:', error);
