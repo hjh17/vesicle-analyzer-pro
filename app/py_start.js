@@ -52,7 +52,7 @@ console.log("ENV: ", process.env.NODE_ENV)
   } else {
     console.info(`PythonStartLocation:${RUNNING_PYTHON_DIR}`);
     console.log(path.join(RUNNING_PYTHON_DIR, 'pydist', 'start'))
-    //TODO: have to make yarn start and yarn package point to the same relative path here
+    // TODO: have to make yarn start and yarn package point to the same relative path here
     pyProc = child_process.execFile(path.join(RUNNING_PYTHON_DIR, 'start'), (error, stdout, stderr) => {
       if (error) {
         throw error;
@@ -71,7 +71,7 @@ const exitPyProc = () => {
 };
 
 const createPyClient = (pyPort) => {
-  const client = new zerorpc.Client({ timeout: 100000 });
+  const client = new zerorpc.Client({ timeout: 500000 });
   client.connect(`tcp://127.0.0.1:${pyPort}`);
   return client;
 };

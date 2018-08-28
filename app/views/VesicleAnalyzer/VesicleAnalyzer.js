@@ -93,14 +93,14 @@ class VesicleAnalyzer extends Component<Props> {
   onClickProcess = filePath => {
     this.setState({ loadingProcessed: true });
     window.client
-      .invoke('process_image', filePath)
+      .invoke_promised('process_image', filePath)
       .then(result => {
         const res = JSON.parse(result);
         this.setState({
           processedImg: res.img_data,
           loadingProcessed: false
         });
-        return null
+        return null;
       })
       .catch(error => {
         this.setState({ loadingProcessed: false });
@@ -111,14 +111,14 @@ class VesicleAnalyzer extends Component<Props> {
   onClickDetect = filePath => {
     this.setState({ loadingDetectedCircles: true });
     window.client
-      .invoke('detect_circles', filePath)
+      .invoke_promised('detect_circles', filePath)
       .then(result => {
         const res = JSON.parse(result);
         this.setState({
           detectedImg: res.img_data.detected_circles,
           loadingDetectedCircles: false
         });
-        return null
+        return null;
       })
       .catch(error => {
         this.setState({ loadingDetectedCircles: false });
@@ -139,17 +139,23 @@ class VesicleAnalyzer extends Component<Props> {
           originalImg: res.img_data,
           loadingOriginal: false
         });
-        return null
+        return null;
       })
-      .then(() => { this.onClickProcess(); return null})
-      .then(() => { this.onClickDetect(); return null})
+      .then(() => {
+        this.onClickProcess();
+        return null;
+      })
+      .then(() => {
+        this.onClickDetect();
+        return null;
+      })
       .catch(error => {
         this.setState({ loadingOriginal: false });
         console.log('Caught error from client:', error);
       });
   };
 
-  onClickTest = () => {
+  onClickCalculateAll = () => {
     remote.dialog.showOpenDialog(
       {
         properties: ['openDirectory']
@@ -157,12 +163,12 @@ class VesicleAnalyzer extends Component<Props> {
       files => {
         const treeObject = [];
         const fileNames = fs.readdirSync(files[0]);
-        let totalFiles = fileNames.length
+        let totalFiles = fileNames.length;
         this.setState({ isCalculating: true });
         fileNames.forEach((file, idx) => {
-          if (!file.endsWith('.tif')){
-            totalFiles -=1;
-            return
+          if (!file.endsWith('.tif')) {
+            totalFiles -= 1;
+            return;
           }
           treeObject.push({
             name: file,
@@ -175,7 +181,7 @@ class VesicleAnalyzer extends Component<Props> {
             loadingOriginal: true
           });
           window.client
-            .invoke('get_original', `${files[0]}/${file}`)
+            .invoke_promised('get_original', `${files[0]}/${file}`)
             .then(result => {
               const res = JSON.parse(result);
               return this.setState({
@@ -183,8 +189,14 @@ class VesicleAnalyzer extends Component<Props> {
                 loadingOriginal: false
               });
             })
-            .then(res => {this.onClickProcess(`${files[0]}/${file}`); return null})
-            .then(res => {this.onClickDetect(`${files[0]}/${file}`); return null})
+            .then(res => {
+              this.onClickProcess(`${files[0]}/${file}`);
+              return null;
+            })
+            .then(res => {
+              this.onClickDetect(`${files[0]}/${file}`);
+              return null;
+            })
             .then(res =>
               this.setState(prevState => {
                 if (prevState.completed + 1 / totalFiles < 1)
@@ -210,22 +222,33 @@ class VesicleAnalyzer extends Component<Props> {
     );
   };
 
-  /*   onClickTest = () => {
+  onClickTest = () => {
     remote.dialog.showOpenDialog(
       {
         properties: ['openDirectory']
       },
       files => {
+        this.setState({isCalculating:true})
         const treeObject = [];
         fs.readdirSync(files[0]).forEach((file, idx) => {
-          
-          treeObject.push({'name': file, 'path': `${files[0]}/${file}`, 'key': idx})
+          treeObject.push({
+            name: file,
+            path: `${files[0]}/${file}`,
+            key: idx
+          });
+        });
+        window.client.invoke('test', treeObject, (error, res, more) => {
+          this.setState({originalImg: res.img_data, processedImg: res.processed_img, detectedImg:res.cirlces})
+          this.setState(prevState => ({
+            completed: prevState.completed + (1 / 200)
+          }));
+          return null;
         })
-        this.setState({treeObject})
+        this.setState({isCalculating:false})
       }
       
     );
-  }; */
+  };
 
   onClickTree = treeEntry => {
     this.setState({
@@ -234,17 +257,23 @@ class VesicleAnalyzer extends Component<Props> {
       loadingOriginal: true
     });
     window.client
-      .invoke('get_original', treeEntry.path)
+      .invoke_promised('get_original', treeEntry.path)
       .then(result => {
         const res = JSON.parse(result);
         this.setState({
           originalImg: res.img_data,
           loadingOriginal: false
         });
-        return null
+        return null;
       })
-      .then(res => {this.onClickProcess(treeEntry.path); return null})
-      .then(res => {this.onClickDetect(treeEntry.path); return null})
+      .then(res => {
+        this.onClickProcess(treeEntry.path);
+        return null;
+      })
+      .then(res => {
+        this.onClickDetect(treeEntry.path);
+        return null;
+      })
       .catch(error => {
         this.setState({ loadingOriginal: false });
         console.log('Caught error from client:', error);
@@ -299,7 +328,7 @@ class VesicleAnalyzer extends Component<Props> {
             className={classes.button}
             variant="contained"
             color="primary"
-            onClick={this.onClickTest}
+            onClick={this.onClickCalculateAll}
           >
             Load files a
           </Button>
@@ -307,7 +336,7 @@ class VesicleAnalyzer extends Component<Props> {
             className={classes.button}
             variant="contained"
             color="primary"
-            onClick={this.onClickCalculate}
+            onClick={this.onClickTest}
           >
             Calculate
           </Button>

@@ -4,6 +4,8 @@ import json
 import base64
 import glob
 import os
+import zerorpc
+import gevent
 
 
 
@@ -88,6 +90,37 @@ class RadiusFinder(object):
                       processed=self.img_to_base64(self.processed_img))
       ans = dict(diameters=diameters.tolist(), total=len(diameters), img_data=img_data)
       return json.dumps(ans)
+
+    @zerorpc.stream
+    def test(self, paths):
+        return self._image_generator(paths)
+
+
+    def _image_generator(self, paths, binary_threshold=(25, 100), gaussian_kernel_size=5, gaussian_blur=0, dp=2.4,
+                     minDist=40,
+                     minRadius=10, maxRadius=80):
+        for path in paths:
+            if path['path'].endswith('.tif'):
+                img = cv2.imread(path['path'])
+                processed_img = self._preprocess_image(path['path'])
+                ans = dict(img_data=self.img_to_base64(img), processed_img=self.img_to_base64(processed_img))
+
+                self.circles = cv2.HoughCircles(processed_img, cv2.HOUGH_GRADIENT, dp=dp, minDist=minDist,
+                                minRadius=minRadius,
+                                maxRadius=maxRadius)
+
+
+                if self.circles is None:
+                    circle_img = img
+                    diameters = []
+                else:
+                    diameters = self.circles[0, :, 2] * 2
+                    circle_img = self.imshow(img)
+
+                gevent.sleep(0.0001)
+                ans = dict(img_data=self.img_to_base64(img), processed_img=self.img_to_base64(processed_img), cirlces=self.img_to_base64(circle_img))
+                yield ans
+                
 
     def _preprocess_image(self, img_path,  binary_threshold=(25, 100), gaussian_kernel_size=5, gaussian_blur=0):
       img = cv2.imread(img_path)

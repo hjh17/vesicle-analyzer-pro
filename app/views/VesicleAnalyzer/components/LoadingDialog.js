@@ -18,6 +18,7 @@ type Props = {
 class LoadingDialog extends Component<Props> {
   render() {
     const { isCalculating, completed } = this.props;
+    console.log(parseInt(completed * 100))
     return (
       <Dialog
         open={isCalculating}
@@ -26,7 +27,7 @@ class LoadingDialog extends Component<Props> {
         aria-describedby="alert-dialog-description"
       >
         <DialogContent>
-          <CircularProgress />
+          <CircularProgress variant="static" value={parseInt(completed * 100)} />
           <DialogContentText>
             Calculating {parseInt(completed * 100)}%
           </DialogContentText>
