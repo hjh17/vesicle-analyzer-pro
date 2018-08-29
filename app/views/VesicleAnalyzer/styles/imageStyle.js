@@ -34,16 +34,37 @@ const imageStyle = {
   },
   slider: {
     position: 'relative',
-    margin: '20px',
-    '&$track': {
-      backgroundColor: 'black'
+    "& div[role=main]": {
+      backgroundColor: 'black',
     },
+    margin: '20px',
     "& button": {
       backgroundColor: second
+    },
+    "& div:nth-child(1)": {
+      backgroundColor: 'black'
     }
   },
-  trackBefore: {
-
+  track: {
+    backgroundColor: "green"
+  },
+  parameterControl: {
+    display:'block'
+  },
+  parameterControlText: {
+    display: 'inline-block',
+    width: "30%",
+  },
+  parameterControlSlider:  {
+    display: 'inline-block',
+    width: "50%",
+    "& button": {
+      backgroundColor: "white"
+    }
+  },
+  parameterControlValue: {
+    display: 'inline-block',
+    width:"10%"
   }
 };
 
