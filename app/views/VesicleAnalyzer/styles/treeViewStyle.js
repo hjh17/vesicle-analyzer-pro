@@ -48,7 +48,7 @@ export const treeStyle = {
         height: 14,
         width: 14,
         arrow: {
-          fill: '#9DA5AB',
+          fill: 'white',
           strokeWidth: 0
         }
       },

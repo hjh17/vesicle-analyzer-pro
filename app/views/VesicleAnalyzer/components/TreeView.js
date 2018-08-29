@@ -31,8 +31,10 @@ class TreeView extends Component<Props> {
   }
 
   onToggle(node, toggled) {
-    this.setState({ currentlySelected: node.key });
-    this.props.onClickTree(node);
+    if ({}.hasOwnProperty.call(node, 'key')) {
+      this.setState({ currentlySelected: node.key });
+      this.props.onClickTree(node);
+    }
     if (this.state.cursor) {
       this.state.cursor.active = false;
     }
@@ -47,21 +49,32 @@ class TreeView extends Component<Props> {
     const { currentlySelected } = this.state;
     const { data } = this.props;
     const selected = currentlySelected + 1;
+    const dataLength = data.map(e => e.children.length).reduce((a, b) => a + b);
     this.setState({ currentlySelected: selected });
-    const fileTreeEntry = data.find(e => e.key === selected % data.length);
-    this.onToggle(fileTreeEntry, true);
+    let found = 0;
+    for (let i = 0; i < data.length; i++) {
+      found = data[i].children.find(e => e.key === selected % dataLength);
+      if (found) {
+        break;
+      }
+    }
+    this.onToggle(found, true);
   }
 
   decrement() {
     const { currentlySelected } = this.state;
     const { data } = this.props;
-    let selected = currentlySelected - 1;
-    if (selected < 0) {
-      selected = data.length + selected;
-    }
+    const selected = currentlySelected - 1;
+    const dataLength = data.map(e => e.children.length).reduce((a, b) => a + b);
     this.setState({ currentlySelected: selected });
-    const fileTreeEntry = data.find(e => e.key === selected % data.length);
-    this.onToggle(fileTreeEntry, true);
+    let found = 0;
+    for (let i = 0; i < data.length; i++) {
+      found = data[i].children.find(e => e.key === selected % dataLength);
+      if (found) {
+        break;
+      }
+    }
+    this.onToggle(found, true);
   }
 
   handleKeyDown = event => {
@@ -79,7 +92,6 @@ class TreeView extends Component<Props> {
 
   render() {
     const { data } = this.props;
-
     return (
       <div>
         {data && (
