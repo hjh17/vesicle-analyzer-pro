@@ -18,7 +18,6 @@ type Props = {
 class LoadingDialog extends Component<Props> {
   render() {
     const { isCalculating, completed } = this.props;
-    console.log(parseInt(completed * 100))
     return (
       <Dialog
         open={isCalculating}
