@@ -23,7 +23,6 @@ const vesicleAnalyzerStyle = {
   treeViewContainer: {
     display:"inline-block",
     verticalAlign: 'top',
-    width: '100px',
     marginTop: '30px',
     marginLeft: '10px',
     border: '3px solid white',
