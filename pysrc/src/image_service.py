@@ -1,3 +1,4 @@
+import base64
 import functools
 import cv2
 import numpy as np
@@ -27,9 +28,9 @@ def get_processed_image(img_path, binary_threshold=(25, 100), gaussian_kernel_si
     return processed_img
 
 @functools.lru_cache(maxsize=256)
-def get_circled_image(img_path, dp=2.4,minDist=40,minRadius=10, maxRadius=80):
+def get_circled_image(img_path, binary_threshold=(25, 100), gaussian_kernel_size=5, gaussian_blur=0, dp=2.4,minDist=40,minRadius=10, maxRadius=80):
     img = get_image(img_path)
-    processed_img = get_processed_image(img_path)
+    processed_img = get_processed_image(img_path, binary_threshold=binary_threshold, gaussian_kernel_size=5, gaussian_blur=gaussian_blur)
     circles = cv2.HoughCircles(processed_img, cv2.HOUGH_GRADIENT, dp=dp, minDist=minDist, minRadius=minRadius, maxRadius=maxRadius)
     if circles is None:
         circle_img = img
@@ -53,9 +54,9 @@ def get_circled_image(img_path, dp=2.4,minDist=40,minRadius=10, maxRadius=80):
 if __name__ == '__main__':
     t1 = time.time()
     
-    get_circled_image('/Users/hjh17/Downloads/akanksha/ImageAnalysis/data2/2017-10-03tif/200xg_cond05_Image004_ch00.tif')
+    get_circled_image('/home/hjortur/workspace/vesicle_analyzer/hjohja.tif')
     print(time.time() - t1)
     t1 = time.time()
     
-    get_circled_image('/Users/hjh17/Downloads/akanksha/ImageAnalysis/data2/2017-10-03tif/200xg_cond05_Image004_ch00.tif')
+    get_circled_image('/home/hjortur/workspace/vesicle_analyzer/hjohja.tif')
     print(time.time() - t1)
