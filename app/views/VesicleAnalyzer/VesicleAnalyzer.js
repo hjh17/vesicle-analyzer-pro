@@ -45,8 +45,11 @@ class VesicleAnalyzer extends Component<Props> {
       dp: 2.4,
       centerDistance: 40,
       minRadius: 10,
-      maxRadius: 80, 
-      selectedImage: null
+      maxRadius: 80,
+      selectedImagePath: null,
+      selectedPosition: 1,
+      selectedCondition: 1,
+      selectedTime: 1
     };
   }
 
@@ -59,7 +62,6 @@ class VesicleAnalyzer extends Component<Props> {
       files => {
         this.setState({ loadingOriginal: true });
         if (files !== undefined) {
-          console.log(files[0]);
           callRPCPromised('get_original', files[0])
             .then(result => {
               const res = JSON.parse(result);
@@ -153,10 +155,19 @@ class VesicleAnalyzer extends Component<Props> {
         fileNames = fileNames.filter(entry => entry.endsWith('tif'));
         const totalFiles = fileNames.length;
         this.setState({ isCalculating: true });
+        const params = {
+          minBinaryThreshold: 40,
+          maxBinaryThreshold: 100,
+          gaussianBlur: 0,
+          dp: 2.4,
+          centerDistance: 40,
+          minRadius: 10,
+          maxRadius: 80
+        };
         fileNames.forEach((file, idx) => {
-          const condition = file.match(/c\d*/)[0].slice(1);
-          const position = file.match(/p\d*/)[0].slice(1);
-          const time = file.match(/t\d*/)[0].slice(1);
+          const condition = parseInt(file.match(/c\d*/)[0].slice(1), 10);
+          const position = parseInt(file.match(/p\d*/)[0].slice(1), 10);
+          const time = parseInt(file.match(/t\d*/)[0].slice(1), 10);
           const hasCondition =
             treeObject.filter(entry => entry.name === `condition ${condition}`)
               .length > 0;
@@ -164,7 +175,14 @@ class VesicleAnalyzer extends Component<Props> {
             treeObject.push({
               name: `condition ${condition}`,
               children: [
-                { name: `position ${position}`, path: `${files[0]}/${file}` }
+                {
+                  name: `position ${position}`,
+                  path: `${files[0]}/${file}`,
+                  time,
+                  params,
+                  condition,
+                  position
+                }
               ]
             });
           } else {
@@ -173,13 +191,17 @@ class VesicleAnalyzer extends Component<Props> {
             );
             treeObject[index].children.push({
               name: `position ${position}`,
-              path: `${files[0]}/${file}`
+              path: `${files[0]}/${file}`,
+              time,
+              params,
+              condition,
+              position
             });
           }
         });
         let keyValue = 0;
-        for (let i = 0; i < treeObject.length; i++) {
-          for (let j = 0; j < treeObject[i].children.length; j++) {
+        for (let i = 0; i < treeObject.length; i += 1) {
+          for (let j = 0; j < treeObject[i].children.length; j += 1) {
             treeObject[i].children[j] = {
               ...treeObject[i].children[j],
               key: keyValue
@@ -191,6 +213,18 @@ class VesicleAnalyzer extends Component<Props> {
         this.setState({ treeObject, isCalculating: false });
       }
     );
+  };
+
+  changeParams = (condition, position, time, value) => {
+    console.log(value)
+    const { treeObject } = this.state
+    const oldEntry = treeObject[condition-1].children[position-1]
+
+    const newEntry = {...oldEntry, params:{...oldEntry.params, ...value}}
+    const newTreeObject = treeObject
+    newTreeObject[condition-1].children[position-1] = newEntry
+    this.setState({treeObject: newTreeObject})
+
   };
 
   onClickTest = () => {
@@ -229,7 +263,11 @@ class VesicleAnalyzer extends Component<Props> {
       loadingProcessed: true,
       loadingDetectedCircles: true,
       loadingOriginal: true,
-      selectedImage: treeEntry.path
+      selectedImagePath: treeEntry.path,
+      selectedKey: treeEntry.key,
+      selectedPosition: treeEntry.position,
+      selectedCondition: treeEntry.condition,
+      selectedTime: treeEntry.time
     });
     window.client
       .invoke_promised('get_original', treeEntry.path)
@@ -260,7 +298,7 @@ class VesicleAnalyzer extends Component<Props> {
     window.client
       .invoke_promised(
         'get_processed_image',
-        this.state.selectedImage,
+        this.state.selectedImagePath,
         value,
         this.state.maxBinaryThreshold,
         this.state.gaussianBlur
@@ -277,7 +315,7 @@ class VesicleAnalyzer extends Component<Props> {
     window.client
       .invoke_promised(
         'get_processed_image',
-        this.state.selectedImage,
+        this.state.selectedImagePath,
         this.state.minBinaryThreshold,
         value,
         this.state.gaussianBlur
@@ -294,7 +332,7 @@ class VesicleAnalyzer extends Component<Props> {
     window.client
       .invoke_promised(
         'get_processed_image',
-        this.state.selectedImage,
+        this.state.selectedImagePath,
         this.state.minBinaryThreshold,
         this.state.maxBinaryThreshold,
         value
@@ -311,7 +349,7 @@ class VesicleAnalyzer extends Component<Props> {
     window.client
       .invoke_promised(
         'get_detected_circles',
-        this.state.selectedImage,
+        this.state.selectedImagePath,
         this.state.minBinaryThreshold,
         this.state.maxBinaryThreshold,
         this.state.gaussianBlur,
@@ -332,7 +370,7 @@ class VesicleAnalyzer extends Component<Props> {
     window.client
       .invoke_promised(
         'get_detected_circles',
-        this.state.selectedImage,
+        this.state.selectedImagePath,
         this.state.minBinaryThreshold,
         this.state.maxBinaryThreshold,
         this.state.gaussianBlur,
@@ -353,7 +391,7 @@ class VesicleAnalyzer extends Component<Props> {
     window.client
       .invoke_promised(
         'get_detected_circles',
-        this.state.selectedImage,
+        this.state.selectedImagePath,
         this.state.minBinaryThreshold,
         this.state.maxBinaryThreshold,
         this.state.gaussianBlur,
@@ -363,7 +401,7 @@ class VesicleAnalyzer extends Component<Props> {
         this.state.maxRadius
       )
       .then(res => {
-        console.log(res)
+        console.log(res);
         this.setState({ detectedImg: res.img_data });
         return null;
       })
@@ -375,7 +413,7 @@ class VesicleAnalyzer extends Component<Props> {
     window.client
       .invoke_promised(
         'get_detected_circles',
-        this.state.selectedImage,
+        this.state.selectedImagePath,
         this.state.minBinaryThreshold,
         this.state.maxBinaryThreshold,
         this.state.gaussianBlur,
@@ -403,8 +441,14 @@ class VesicleAnalyzer extends Component<Props> {
       detectedImg,
       treeObject,
       completed,
-      isCalculating
+      isCalculating,
+      selectedPosition,
+      selectedCondition
     } = this.state;
+    let currentlySelectedData = null;
+    if (treeObject !== null) {
+      currentlySelectedData = treeObject[selectedCondition-1].children[selectedPosition-1];
+  }
 
     return (
       <div data-tid="container">
@@ -413,6 +457,8 @@ class VesicleAnalyzer extends Component<Props> {
         </div>
         <div className={classes.container}>
           <ImageContainer
+            changeParams={this.changeParams}
+            currentlySelectedData={currentlySelectedData}
             onClickLoad={this.onClickLoad}
             onClickProcess={this.onClickProcess}
             onClickDetect={this.onClickDetect}
@@ -437,7 +483,6 @@ class VesicleAnalyzer extends Component<Props> {
             centerDistance={this.state.centerDistance}
             minRadius={this.state.minRadius}
             maxRadius={this.state.maxRadius}
-            
           />
 
           <Link to={routes.FrontPage}>
