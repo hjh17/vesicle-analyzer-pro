@@ -15,6 +15,16 @@ type Props = {
   res: object
 };
 
+const defaultParams = {
+  minBinaryThreshold: 40,
+  maxBinaryThreshold: 100,
+  gaussianBlur: 0,
+  dp: 2.4,
+  centerDistance: 40,
+  minRadius: 10,
+  maxRadius: 80,
+}
+
 class ImageContainer extends Component<Props> {
   render() {
     const {
@@ -28,8 +38,22 @@ class ImageContainer extends Component<Props> {
       processedImg,
       detectedImg,
       onClickProcess,
-      onClickDetect
+      onClickDetect,
+      currentlySelectedData
     } = this.props;
+
+    let params; let condition; let position; let time = null; null; null; null;
+    if (currentlySelectedData !== null) {
+      params = currentlySelectedData.params
+      position = currentlySelectedData.position
+      condition = currentlySelectedData.condition
+      time = currentlySelectedData.time
+    } else {
+      params = defaultParams
+      position = null,
+      condition = null,
+      time = null
+    }
     return (
       <div className={classes.imageContainer}>
         <div className={classes.imageBox}>
@@ -70,12 +94,12 @@ class ImageContainer extends Component<Props> {
               min={0}
               max={255}
               className={classes.parameterControlSlider}
-              value={this.props.minBinaryThreshold}
+              value={params.minBinaryThreshold}
               aria-labelledby="label"
-              onChange={this.props.onChangeMinBinaryThreshold}
+              onChange={(event,value) => this.props.changeParams(condition, position, time, {minBinaryThreshold:value})}
             />
             <span className={classes.parameterControlValue}>
-              {this.props.minBinaryThreshold}
+              {params.minBinaryThreshold}
             </span>
           </div>
           <div className={classes.parameterControl}>
