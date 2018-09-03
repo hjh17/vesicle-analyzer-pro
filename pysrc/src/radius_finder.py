@@ -49,6 +49,9 @@ class RadiusFinder(object):
     print(binary_threshold_min, binary_threshold_max, gaussian_blur)
     return dict(img_data=self.img_to_base64(processed_img))
 
+  def test(self, img_path, params):
+      print(params)
+
   def get_detected_circles(self, img_path, binary_threshold_min, binary_threshold_max, gaussian_blur, dp,
                            minDist,
                            minRadius, maxRadius):
