@@ -18,6 +18,7 @@ import Table from "./components/Table";
 
 import { callRPCPromised, callRPC } from '../../utils/api/rpc';
 import { defaultParams } from "../../variables/paramControl"
+import saveToExcel from "./saveToExcel"
 
 type Props = {
   classes: object
@@ -274,6 +275,30 @@ class VesicleAnalyzer extends Component<Props> {
       });
   };
 
+  saveExcelFile = () => {
+    const {treeObject} = this.state
+    const content = "lol"
+
+    // You can obviously give a direct path without use the dialog (C:/Program Files/path/myfileexample.txt)
+    remote.dialog.showSaveDialog({title:"Save analysis as Excel", defaultPath:"analysis.xlsx"}, (fileName) => {
+        if (fileName === undefined){
+            console.log("You didn't save the file");
+            return;
+        }
+    
+        // fileName is a string that contains the path and filename created in the save file dialog.  
+        fs.writeFile(fileName, content, (err) => {
+            if(err){
+                alert(`An error ocurred creating the file ${ err.message}`)
+            }
+            console.log(fileName)
+            saveToExcel(fileName, treeObject)
+                        
+            alert("The file has been succesfully saved");
+        });
+    }); 
+  }
+
   render() {
     const { classes } = this.props;
     const {
@@ -339,6 +364,14 @@ class VesicleAnalyzer extends Component<Props> {
             onClick={this.onClickCalculateAll}
           >
             Calculate All
+          </Button>
+          <Button
+            className={classes.button}
+            variant="contained"
+            color="primary"
+            onClick={this.saveExcelFile}
+          >
+            Save to excel
           </Button>
         </div>
         <LinearProgress
