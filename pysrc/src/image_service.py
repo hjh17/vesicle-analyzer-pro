@@ -37,6 +37,7 @@ def get_circled_image(img_path, binary_threshold=(25, 100), gaussian_kernel_size
         diameters = []
     else:
         diameters = circles[0, :, 2] * 2
+        diameters = diameters.tolist()
         circle_img = img.copy()
         circles = np.round(circles[0, :]).astype("int")
 
@@ -49,7 +50,7 @@ def get_circled_image(img_path, binary_threshold=(25, 100), gaussian_kernel_size
             cv2.putText(circle_img, str(idx), (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
             cv2.putText(circle_img, 'radius ' + str(r), (int(x), int(y) + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                         (255, 255, 255), 2)
-    return circle_img
+    return circle_img, diameters
 
 if __name__ == '__main__':
     t1 = time.time()
