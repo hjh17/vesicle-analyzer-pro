@@ -14,8 +14,10 @@ import routes from '../../constants/routes.json';
 import ImageContainer from './containers/ImageContainer';
 import TreeView from './components/TreeView';
 import LoadingDialog from './components/LoadingDialog';
+import Table from "./components/Table";
 
 import { callRPCPromised, callRPC } from '../../utils/api/rpc';
+import { defaultParams } from "../../variables/paramControl"
 
 type Props = {
   classes: object
@@ -27,9 +29,6 @@ class VesicleAnalyzer extends Component<Props> {
   constructor(props) {
     super(props);
     this.state = {
-      imgData: null,
-      err: null,
-      res: null,
       loadingOriginal: false,
       loadingProcessed: false,
       loadingDetectedCircles: false,
@@ -39,13 +38,7 @@ class VesicleAnalyzer extends Component<Props> {
       treeObject: null,
       completed: 0,
       isCalculating: false,
-      minBinaryThreshold: 40,
-      maxBinaryThreshold: 100,
-      gaussianBlur: 0,
-      dp: 2.4,
-      centerDistance: 40,
-      minRadius: 10,
-      maxRadius: 80,
+      selectedParams: defaultParams,
       selectedImagePath: null,
       selectedPosition: 1,
       selectedCondition: 1,
@@ -53,31 +46,6 @@ class VesicleAnalyzer extends Component<Props> {
     };
   }
 
-  onClickLoad = () => {
-    remote.dialog.showOpenDialog(
-      {
-        properties: ['openFile', 'multiSelections'],
-        filters: [{ name: 'Images', extensions: ['tif', 'png', 'jpg'] }]
-      },
-      files => {
-        this.setState({ loadingOriginal: true });
-        if (files !== undefined) {
-          callRPCPromised('get_original', files[0])
-            .then(result => {
-              const res = JSON.parse(result);
-              return this.setState({
-                originalImg: res.img_data,
-                loadingOriginal: false
-              });
-            })
-            .catch(error => {
-              this.setState({ loadingOriginal: false });
-              console.log('Caught error from client:', error);
-            });
-        }
-      }
-    );
-  };
 
   onClickProcess = filePath => {
     this.setState({ loadingProcessed: true });
@@ -115,35 +83,6 @@ class VesicleAnalyzer extends Component<Props> {
       });
   };
 
-  onClickCalculate = () => {
-    this.setState({ loadingProcessed: true });
-    window.client
-      .invoke(
-        'get_original',
-        '/home/hjortur/workspace/vesicle_analyzer/test.tif'
-      )
-      .then(result => {
-        const res = JSON.parse(result);
-        this.setState({
-          originalImg: res.img_data,
-          loadingOriginal: false
-        });
-        return null;
-      })
-      .then(() => {
-        this.onClickProcess();
-        return null;
-      })
-      .then(() => {
-        this.onClickDetect();
-        return null;
-      })
-      .catch(error => {
-        this.setState({ loadingOriginal: false });
-        console.log('Caught error from client:', error);
-      });
-  };
-
   onClickLoadFiles = () => {
     remote.dialog.showOpenDialog(
       {
@@ -153,7 +92,6 @@ class VesicleAnalyzer extends Component<Props> {
         const treeObject = [];
         let fileNames = fs.readdirSync(files[0]);
         fileNames = fileNames.filter(entry => entry.endsWith('tif'));
-        const totalFiles = fileNames.length;
         this.setState({ isCalculating: true });
         const params = {
           minBinaryThreshold: 40,
@@ -181,7 +119,8 @@ class VesicleAnalyzer extends Component<Props> {
                   time,
                   params,
                   condition,
-                  position
+                  position,
+                  diameters: []
                 }
               ]
             });
@@ -195,7 +134,8 @@ class VesicleAnalyzer extends Component<Props> {
               time,
               params,
               condition,
-              position
+              position,
+              diameters: []
             });
           }
         });
@@ -215,48 +155,89 @@ class VesicleAnalyzer extends Component<Props> {
     );
   };
 
-  changeParams = (condition, position, time, value) => {
-    console.log(value)
-    const { treeObject } = this.state
-    const oldEntry = treeObject[condition-1].children[position-1]
+  changeParams = value => {
+    const {
+      treeObject,
+      selectedCondition,
+      selectedPosition,
+      selectedImagePath,
+      selectedTime
+    } = this.state;
+    const oldEntry =
+      treeObject[selectedCondition - 1].children[selectedPosition - 1];
 
-    const newEntry = {...oldEntry, params:{...oldEntry.params, ...value}}
-    const newTreeObject = treeObject
-    newTreeObject[condition-1].children[position-1] = newEntry
-    this.setState({treeObject: newTreeObject})
-
+    const newEntry = { ...oldEntry, params: { ...oldEntry.params, ...value } };
+    const newTreeObject = treeObject;
+    newTreeObject[selectedCondition - 1].children[
+      selectedPosition - 1
+    ] = newEntry;
+    this.setState({ treeObject: newTreeObject, selectedParams: { ...oldEntry.params, ...value } });
+    callRPCPromised('get_processed_image', selectedImagePath, newEntry.params)
+      .then(res => {
+        this.setState({ processedImg: res.img_data });
+        return null;
+      })
+      .catch(err => console.log(err));
+    callRPCPromised('get_detected_circles', selectedImagePath, newEntry.params)
+      .then(res => {
+        console.log(res);
+        this.setState({ detectedImg: res.img_data });
+        this.updateDiameters(selectedCondition, selectedPosition, selectedTime, res.diameters)
+        return null;
+      })
+      .catch(err => console.log(err));
   };
 
-  onClickTest = () => {
-    remote.dialog.showOpenDialog(
-      {
-        properties: ['openDirectory']
-      },
-      files => {
-        this.setState({ isCalculating: true });
-        const treeObject = [];
-        fs.readdirSync(files[0]).forEach((file, idx) => {
-          treeObject.push({
-            name: file,
-            path: `${files[0]}/${file}`,
-            key: idx
-          });
-        });
-        window.client.invoke('test', treeObject, (error, res, more) => {
-          this.setState({
-            originalImg: res.img_data,
-            processedImg: res.processed_img,
-            detectedImg: res.cirlces
-          });
-          this.setState(prevState => ({
-            completed: prevState.completed + 1 / 200
-          }));
-          return null;
-        });
-        this.setState({ isCalculating: false });
+  updateDiameters = (condition, position, time, diameters) => {
+    const {
+      treeObject,
+    } = this.state;
+    const oldEntry =
+      treeObject[condition - 1].children[position - 1];
+      const newEntry = { ...oldEntry, diameters };
+      const newTreeObject = treeObject;
+      newTreeObject[condition - 1].children[
+        position - 1
+      ] = newEntry;
+      this.setState({ treeObject: newTreeObject });
+  };
+
+  getIndexByPath = (path) => {
+    const { treeObject } = this.state;
+    let entry = null;
+    treeObject.forEach(condition => condition.children.forEach(position => {
+      if (position.path === path) {
+        entry = position
       }
-    );
-  };
+    }))
+    return [entry.condition, entry.position, entry.time]
+  }
+
+  onClickCalculateAll = () => {
+    const {
+      treeObject,
+      selectedParams
+    } = this.state;
+    const imagePaths = []
+    treeObject.forEach(condition => condition.children.forEach(position => imagePaths.push(position.path)))
+
+
+    window.client.invoke('calculate_all', imagePaths, selectedParams, (error, res, more) => {
+      this.updateDiameters(...this.getIndexByPath(res.path), res.diameters)
+        this.setState({
+          originalImg: res.img_data,
+          processedImg: res.processed_img,
+          detectedImg: res.cirlces
+        });
+        this.setState(prevState => ({
+          completed: prevState.completed + 1 / imagePaths.length
+        }));
+        return null;
+      });
+      this.setState({ isCalculating: false });
+    }
+
+
 
   onClickTree = treeEntry => {
     this.setState({
@@ -279,11 +260,11 @@ class VesicleAnalyzer extends Component<Props> {
         });
         return null;
       })
-      .then(res => {
+      .then(() => {
         this.onClickProcess(treeEntry.path);
         return null;
       })
-      .then(res => {
+      .then(() => {
         this.onClickDetect(treeEntry.path);
         return null;
       })
@@ -293,146 +274,9 @@ class VesicleAnalyzer extends Component<Props> {
       });
   };
 
-  onChangeMinBinaryThreshold = (event, value) => {
-    this.setState({ minBinaryThreshold: value });
-    window.client
-      .invoke_promised(
-        'get_processed_image',
-        this.state.selectedImagePath,
-        value,
-        this.state.maxBinaryThreshold,
-        this.state.gaussianBlur
-      )
-      .then(res => {
-        this.setState({ processedImg: res.img_data });
-        return null;
-      })
-      .catch(err => console.log(err));
-  };
-
-  onChangeMaxBinaryThreshold = (event, value) => {
-    this.setState({ maxBinaryThreshold: value });
-    window.client
-      .invoke_promised(
-        'get_processed_image',
-        this.state.selectedImagePath,
-        this.state.minBinaryThreshold,
-        value,
-        this.state.gaussianBlur
-      )
-      .then(res => {
-        this.setState({ processedImg: res.img_data });
-        return null;
-      })
-      .catch(err => console.log(err));
-  };
-
-  onChangeGaussianBlur = (event, value) => {
-    this.setState({ gaussianBlur: value });
-    window.client
-      .invoke_promised(
-        'get_processed_image',
-        this.state.selectedImagePath,
-        this.state.minBinaryThreshold,
-        this.state.maxBinaryThreshold,
-        value
-      )
-      .then(res => {
-        this.setState({ processedImg: res.img_data });
-        return null;
-      })
-      .catch(err => console.log(err));
-  };
-
-  onChangeDp = (event, value) => {
-    this.setState({ dp: value });
-    window.client
-      .invoke_promised(
-        'get_detected_circles',
-        this.state.selectedImagePath,
-        this.state.minBinaryThreshold,
-        this.state.maxBinaryThreshold,
-        this.state.gaussianBlur,
-        value,
-        this.state.centerDistance,
-        this.state.minRadius,
-        this.state.maxRadius
-      )
-      .then(res => {
-        this.setState({ detectedImg: res.img_data });
-        return null;
-      })
-      .catch(err => console.log(err));
-  };
-
-  onChangeCenterDistance = (event, value) => {
-    this.setState({ centerDistance: value });
-    window.client
-      .invoke_promised(
-        'get_detected_circles',
-        this.state.selectedImagePath,
-        this.state.minBinaryThreshold,
-        this.state.maxBinaryThreshold,
-        this.state.gaussianBlur,
-        this.state.dp,
-        value,
-        this.state.minRadius,
-        this.state.maxRadius
-      )
-      .then(res => {
-        this.setState({ detectedImg: res.img_data });
-        return null;
-      })
-      .catch(err => console.log(err));
-  };
-
-  onChangeMinRadius = (event, value) => {
-    this.setState({ minRadius: value });
-    window.client
-      .invoke_promised(
-        'get_detected_circles',
-        this.state.selectedImagePath,
-        this.state.minBinaryThreshold,
-        this.state.maxBinaryThreshold,
-        this.state.gaussianBlur,
-        this.state.dp,
-        this.state.centerDistance,
-        value,
-        this.state.maxRadius
-      )
-      .then(res => {
-        console.log(res);
-        this.setState({ detectedImg: res.img_data });
-        return null;
-      })
-      .catch(err => console.log(err));
-  };
-
-  onChangeMaxRadius = (event, value) => {
-    this.setState({ maxRadius: value });
-    window.client
-      .invoke_promised(
-        'get_detected_circles',
-        this.state.selectedImagePath,
-        this.state.minBinaryThreshold,
-        this.state.maxBinaryThreshold,
-        this.state.gaussianBlur,
-        this.state.dp,
-        this.state.centerDistance,
-        this.state.minRadius,
-        value
-      )
-      .then(res => {
-        this.setState({ detectedImg: res.img_data });
-        return null;
-      })
-      .catch(err => console.log(err));
-  };
-
   render() {
     const { classes } = this.props;
     const {
-      res,
       loadingOriginal,
       loadingProcessed,
       loadingDetectedCircles,
@@ -447,8 +291,10 @@ class VesicleAnalyzer extends Component<Props> {
     } = this.state;
     let currentlySelectedData = null;
     if (treeObject !== null) {
-      currentlySelectedData = treeObject[selectedCondition-1].children[selectedPosition-1];
-  }
+      currentlySelectedData =
+        treeObject[selectedCondition - 1].children[selectedPosition - 1];
+    }
+    const loading = [loadingOriginal, loadingProcessed, loadingDetectedCircles];
 
     return (
       <div data-tid="container">
@@ -459,31 +305,14 @@ class VesicleAnalyzer extends Component<Props> {
           <ImageContainer
             changeParams={this.changeParams}
             currentlySelectedData={currentlySelectedData}
-            onClickLoad={this.onClickLoad}
             onClickProcess={this.onClickProcess}
             onClickDetect={this.onClickDetect}
             originalImg={originalImg}
             processedImg={processedImg}
             detectedImg={detectedImg}
-            loadingOriginal={loadingOriginal}
-            loadingProcessed={loadingProcessed}
-            loadingDetectedCircles={loadingDetectedCircles}
-            res={res}
-            onChangeMinBinaryThreshold={this.onChangeMinBinaryThreshold}
-            onChangeMaxBinaryThreshold={this.onChangeMaxBinaryThreshold}
-            onChangeGaussianBlur={this.onChangeGaussianBlur}
-            onChangeDp={this.onChangeDp}
-            onChangeCenterDistance={this.onChangeCenterDistance}
-            onChangeMinRadius={this.onChangeMinRadius}
-            onChangeMaxRadius={this.onChangeMaxRadius}
-            minBinaryThreshold={this.state.minBinaryThreshold}
-            maxBinaryThreshold={this.state.maxBinaryThreshold}
-            gaussianBlur={this.state.gaussianBlur}
-            dp={this.state.dp}
-            centerDistance={this.state.centerDistance}
-            minRadius={this.state.minRadius}
-            maxRadius={this.state.maxRadius}
+            loading={loading}
           />
+          { currentlySelectedData && <Table data={currentlySelectedData.diameters} />}
 
           <Link to={routes.FrontPage}>
             <Button
@@ -507,7 +336,7 @@ class VesicleAnalyzer extends Component<Props> {
             className={classes.button}
             variant="contained"
             color="primary"
-            onClick={this.onClickTest}
+            onClick={this.onClickCalculateAll}
           >
             Calculate All
           </Button>
