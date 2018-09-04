@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { compose } from 'recompose';
 
 import withStyles from '@material-ui/core/styles/withStyles';
-import Slider from '@material-ui/lab/Slider';
 import withLoadingSpinner from '../../../utils/with/loadingSpinner';
 
 import imageStyle from '../styles/imageStyle';
@@ -33,11 +32,9 @@ class Image extends Component<Props> {
   render() {
     const { imgData, classes, title } = this.props;
     const {  state: { values, update } } = this
-
-
     return (
       <React.Fragment>
-        <img src={`data:image/png;base64,${imgData}`} alt="original" />
+        {imgData && <img src={`data:image/png;base64,${imgData}`} alt="original" />}
       </React.Fragment>
     );
   }
