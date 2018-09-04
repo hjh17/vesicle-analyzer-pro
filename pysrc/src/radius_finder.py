@@ -41,28 +41,31 @@ class RadiusFinder(object):
 
 
 
-  def get_processed_image(self, img_path, binary_threshold_min, binary_threshold_max, gaussian_blur):
+  def get_processed_image(self, img_path, params):
+    binary_threshold_min = params["minBinaryThreshold"]
+    binary_threshold_max = params["maxBinaryThreshold"]
+    gaussian_blur = params["gaussianBlur"]
 
     processed_img = image_service.get_processed_image(img_path,
                                                       binary_threshold=(binary_threshold_min, binary_threshold_max),
                                                       gaussian_blur=gaussian_blur)
-    print(binary_threshold_min, binary_threshold_max, gaussian_blur)
     return dict(img_data=self.img_to_base64(processed_img))
 
-  def test(self, img_path, params):
-      print(params)
 
-  def get_detected_circles(self, img_path, binary_threshold_min, binary_threshold_max, gaussian_blur, dp,
-                           minDist,
-                           minRadius, maxRadius):
-    detected_circles = image_service.get_circled_image(img_path, (binary_threshold_min, binary_threshold_max), 5,
+  def get_detected_circles(self, img_path, params):
+    binary_threshold_min = params["minBinaryThreshold"]
+    binary_threshold_max = params["maxBinaryThreshold"]
+    gaussian_blur = params["gaussianBlur"]
+    dp = params["dp"]
+    minDist = params["centerDistance"]
+    minRadius = params["minRadius"]
+    maxRadius = params["maxRadius"]
+
+    detected_circles, diameters = image_service.get_circled_image(img_path, (binary_threshold_min, binary_threshold_max), 5,
                                                        gaussian_blur, dp,
                                                        minDist,
                                                        int(minRadius), int(maxRadius))
-    print(binary_threshold_min, binary_threshold_max, gaussian_blur, dp,
-          minDist,
-          minRadius, maxRadius)
-    return dict(img_data=self.img_to_base64(detected_circles))
+    return dict(img_data=self.img_to_base64(detected_circles), diameters=diameters)
 
   def detect_circles(self, img_path, binary_threshold=(25, 100), gaussian_kernel_size=5, gaussian_blur=0, dp=2.4,
                      minDist=40,
@@ -94,7 +97,6 @@ class RadiusFinder(object):
                    minDist=40,
                    minRadius=10, maxRadius=80):
     self.img_path = img_path
-    print(img_path)
     self.img = cv2.imread(img_path)
     self.original = self.img.copy()
 
@@ -115,42 +117,48 @@ class RadiusFinder(object):
     return json.dumps(ans)
 
   @zerorpc.stream
-  def test(self, paths):
-    return self._image_generator(paths)
+  def calculate_all(self, paths, params):
+    print(paths, params)
+    return self._image_generator(paths, params)
 
-  def _image_generator(self, paths, binary_threshold=(25, 100), gaussian_kernel_size=5, gaussian_blur=0, dp=2.4,
-                       minDist=40,
-                       minRadius=10, maxRadius=80):
-    for path in paths:
-      if path['path'].endswith('.tif'):
-        img = cv2.imread(path['path'])
-        processed_img = self._preprocess_image(path['path'])
-        ans = dict(img_data=self.img_to_base64(img), processed_img=self.img_to_base64(processed_img))
+  def _image_generator(self, paths, params):
+      binary_threshold_min = params["minBinaryThreshold"]
+      binary_threshold_max = params["maxBinaryThreshold"]
+      gaussian_blur = params["gaussianBlur"]
+      dp = params["dp"]
+      minDist = params["centerDistance"]
+      minRadius = params["minRadius"]
+      maxRadius = params["maxRadius"]
+      for path in paths:
+          img = cv2.imread(path)
+          processed_img = self._preprocess_image(path, (binary_threshold_min, binary_threshold_max), gaussian_blur)
+          ans = dict(img_data=self.img_to_base64(img), processed_img=self.img_to_base64(processed_img))
 
-        self.circles = cv2.HoughCircles(processed_img, cv2.HOUGH_GRADIENT, dp=dp, minDist=minDist,
-                                        minRadius=minRadius,
-                                        maxRadius=maxRadius)
+          self.circles = cv2.HoughCircles(processed_img, cv2.HOUGH_GRADIENT, dp=dp, minDist=minDist,
+                                          minRadius=minRadius,
+                                          maxRadius=maxRadius)
 
-        if self.circles is None:
-          circle_img = img
-          diameters = []
-        else:
-          diameters = self.circles[0, :, 2] * 2
-          circle_img = self.imshow(img)
+          if self.circles is None:
+            circle_img = img
+            diameters = []
+          else:
+            diameters = self.circles[0, :, 2] * 2
+            diameters = diameters.tolist()
+            circle_img = self.imshow(img)
 
-        gevent.sleep(0.0001)
-        ans = dict(img_data=self.img_to_base64(img), processed_img=self.img_to_base64(processed_img),
-                   cirlces=self.img_to_base64(circle_img))
-        yield ans
+          gevent.sleep(0.0001)
+          ans = dict(img_data=self.img_to_base64(img), processed_img=self.img_to_base64(processed_img),
+                     cirlces=self.img_to_base64(circle_img), diameters=diameters, path=path)
+          yield ans
 
-  def _preprocess_image(self, img_path, binary_threshold=(25, 100), gaussian_kernel_size=5, gaussian_blur=0):
+  def _preprocess_image(self, img_path, binary_threshold=(25, 100), gaussian_blur=0):
     img = cv2.imread(img_path)
 
     # Binarize given threshold values
     ret, processed_img = cv2.threshold(img, binary_threshold[0], binary_threshold[1], cv2.THRESH_BINARY)
 
     # Smooth edges with Gaussian blur
-    processed_img = cv2.GaussianBlur(processed_img, (gaussian_kernel_size, gaussian_kernel_size), gaussian_blur)
+    processed_img = cv2.GaussianBlur(processed_img, (5,5), gaussian_blur)
 
     # Grayscale image
     processed_img = cv2.cvtColor(processed_img, cv2.COLOR_BGR2GRAY)
