@@ -14,7 +14,7 @@ OSX: brew install pkg-config
 
 ```
 lsof -i :4242
-sudo kill - <PID>
+sudo kill -9 <PID>
 ```
 
 Node version: 10.8.0
