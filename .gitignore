@@ -62,3 +62,4 @@ __pycache__/
 .venv
 tiff/
 tiff_new_format/
+*.xlsx*
