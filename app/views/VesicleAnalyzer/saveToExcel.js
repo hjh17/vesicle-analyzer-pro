@@ -34,7 +34,7 @@ export const saveToExcel = (path, data) => {
       }
     }
   };
-
+  
   // Array of objects representing heading rows (very top)
   const heading = [
     [
@@ -42,7 +42,7 @@ export const saveToExcel = (path, data) => {
       { value: 'b1', style: styles.headerDark },
       { value: 'c1', style: styles.headerDark }
     ],
-    ['a2', 'b2', 'c2'] // <-- It can be only values
+    ['a4', 'b2', 'c2'] // <-- It can be only values
   ];
 
   // Here you specify the export structure
@@ -80,13 +80,14 @@ export const saveToExcel = (path, data) => {
 
   const specification = {};
   data.forEach(
-    entry =>
-      (specification[entry.name] = {
-        displayName: entry.name,
+    condition => condition.children.forEach(position => 
+      (specification[`condition${position.condition}${position.position}`] = {
+        displayName: `condition ${position.condition}`,
         headerStyle: styles.headerDark,
         cellStyle: styles.cellPink, // <- Cell style
         width: 220 // <- width in pixels
       })
+    )
   );
 
   // The data set should have the following shape (Array of Objects)
@@ -94,38 +95,69 @@ export const saveToExcel = (path, data) => {
   // dataset contains more fields as the report is build based on the
   // specification provided above. But you should have all the fields
   // that are listed in the report specification
-  const dataset = [
-    {
-      "condition 1": 'IBM',
-      "condition 2": 1,
-      "condition 3": 'some note',
-      "condition 4": 'not shown',
-      "condition 5": 'not shown'
-    },
-    { "condition 1": 'HP', "condition 2": 0, "condition 3": 'some note' },
-    { "condition 1": 'HP', "condition 2": 4, "condition 3": 'some note' },
-  ];
+  
+  let maxNumberCircles = 0;
+  data.forEach(condition => condition.children.forEach(position => {
+    if (position.diameters.length >= maxNumberCircles){
+      maxNumberCircles = position.diameters.length
+    }
+  }))
+
+  const dataset = []
+  let entry = {}
+  for (let i = 0; i < maxNumberCircles; i += 1) {
+    entry = {}
+    for (let j = 0; j < data.length; j+= 1) {
+      for (let k = 0; k < data[j].children.length; k += 1){
+        const key = `condition${data[j].children[k].condition}${data[j].children[k].position}`
+        let value = data[j].children[k].diameters[i];
+        if (i >= data[j].children[k].diameters.length) {
+          value = ""
+        } else {
+          value = data[j].children[k].diameters[i]
+        }
+        entry[key] = value
+      }
+    }
+    dataset.push(entry)
+  }
+
 
   // Define an array of merges. 1-1 = A:1
   // The merges are independent of the data.
   // A merge will overwrite all data _not_ in the top-left cell.
-  const merges = [
-    { start: { row: 1, column: 1 }, end: { row: 1, column: 10 } },
-    { start: { row: 2, column: 1 }, end: { row: 2, column: 5 } },
-    { start: { row: 2, column: 6 }, end: { row: 2, column: 10 } }
-  ];
+  const merges = []
+  data.forEach((condition, idx) => {
+    merges.push({start: {row:3, column: idx*condition.children.length+1}, end: {row: 3, column: (idx+1)*condition.children.length}})
+  })
+
+  // /// COUNT
+  const headingCount = []
+  data.forEach(condition => {
+    let numberOfVesicles = 0;
+    condition.children.forEach(position => numberOfVesicles += position.diameters.length)
+    headingCount.push([condition.name, numberOfVesicles])
+  })
+  console.log(headingCount)
+
 
   // Create the excel report.
   // This function will return Buffer
   const report = excel.buildExport([
     // <- Notice that this is an array. Pass multiple sheets to create multi sheet report
     {
-      name: 'Report', // <- Specify sheet name (optional)
+      name: 'Diameters', // <- Specify sheet name (optional)
       heading, // <- Raw heading array (optional)
       merges, // <- Merge cell ranges
       specification, // <- Report specification
       data: dataset // <-- Report data
-    }
+    },
+    {
+      name: 'Count', // <- Specify sheet name (optional)
+      heading: headingCount, // <- Raw heading array (optional)
+      specification: [], // <- Report specification
+      data: [] // <--
+    },
   ]);
 
   // You can then return this straight
