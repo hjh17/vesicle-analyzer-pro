@@ -1,7 +1,7 @@
 import fs from 'fs';
 import excel from 'node-excel-export';
 
-export const saveToExcel = (path, data) => {
+export const saveToExcel = (path, data, scale) => {
   console.log(data);
   const styles = {
     headerDark: {
@@ -114,7 +114,7 @@ export const saveToExcel = (path, data) => {
         if (i >= data[j].children[k].diameters.length) {
           value = ""
         } else {
-          value = data[j].children[k].diameters[i]
+          value = data[j].children[k].diameters[i]/scale
         }
         entry[key] = value
       }

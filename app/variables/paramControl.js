@@ -50,6 +50,13 @@ export const paramsDetectCircles = [
     min: 10,
     max: 400,
     variable: 'maxRadius'
+  },
+  {
+    name: 'Radius (proportion)',
+    defaultValue: 1,
+    min: 0,
+    max: 1.5,
+    variable: 'radiusProportion'
   }
 ];
 
@@ -60,5 +67,6 @@ export const defaultParams = {
     dp: 2.4,
     centerDistance: 40,
     minRadius: 10,
-    maxRadius: 80
+    maxRadius: 80,
+    radiusProportion: 1
   };

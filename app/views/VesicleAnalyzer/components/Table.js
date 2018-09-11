@@ -11,7 +11,7 @@ import tableStyle from '../styles/tableStyle';
 
 class DiameterTable extends Component<Props> {
   render() {
-    const { classes, data } = this.props;
+    const { classes, data, scale } = this.props;
 
     return (
       <div className={classes.tableContainer}>
@@ -26,7 +26,7 @@ class DiameterTable extends Component<Props> {
             {data.map((diameter, idx) => (
               <TableRow key={idx}>
                 <TableCell>{idx+1}</TableCell>
-                <TableCell numeric>{diameter}</TableCell>
+                <TableCell numeric>{diameter/scale}</TableCell>
               </TableRow>
             ))}
           </TableBody>

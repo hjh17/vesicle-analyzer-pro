@@ -8,7 +8,7 @@ import imageStyle from '../styles/imageStyle';
 
 type Props = {
   classes: object,
-  imgData: string
+  imgData: string | null
 };
 
 const domain = [0, 10]

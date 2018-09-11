@@ -8,6 +8,7 @@ import { remote } from 'electron';
 
 import fs from 'fs';
 import LinearProgress from '@material-ui/core/LinearProgress';
+import TextField from '@material-ui/core/TextField';
 import vesicleAnalyzerStyle from './styles/vesicleAnalyzerStyle';
 import routes from '../../constants/routes.json';
 
@@ -43,7 +44,8 @@ class VesicleAnalyzer extends Component<Props> {
       selectedImagePath: null,
       selectedPosition: 1,
       selectedCondition: 1,
-      selectedTime: 1
+      selectedTime: 1,
+      scale: 4.158
     };
   }
 
@@ -67,21 +69,15 @@ class VesicleAnalyzer extends Component<Props> {
   };
 
   onClickDetect = filePath => {
+    const { selectedCondition, selectedPosition, selectedTime, selectedParams} = this.state
     this.setState({ loadingDetectedCircles: true });
-    window.client
-      .invoke_promised('detect_circles', filePath)
-      .then(result => {
-        const res = JSON.parse(result);
-        this.setState({
-          detectedImg: res.img_data.detected_circles,
-          loadingDetectedCircles: false
-        });
+    callRPCPromised('get_detected_circles', filePath, selectedParams)
+      .then(res => {
+        this.setState({ detectedImg: res.img_data, loadingDetectedCircles: false });
+        this.updateDiameters(selectedCondition, selectedPosition, selectedTime, res.diameters)
         return null;
       })
-      .catch(error => {
-        this.setState({ loadingDetectedCircles: false });
-        console.log('Caught error from client:', error);
-      });
+      .catch(err => console.log(err));
   };
 
   onClickLoadFiles = () => {
@@ -101,12 +97,14 @@ class VesicleAnalyzer extends Component<Props> {
           dp: 2.4,
           centerDistance: 40,
           minRadius: 10,
-          maxRadius: 80
+          maxRadius: 80,
+          radiusProportion: 1
         };
         fileNames.forEach((file, idx) => {
-          const condition = parseInt(file.match(/c\d*/)[0].slice(1), 10);
-          const position = parseInt(file.match(/p\d*/)[0].slice(1), 10);
-          const time = parseInt(file.match(/t\d*/)[0].slice(1), 10);
+
+          const condition = parseInt(file.match(/condition(\d*)/)[1], 10);
+          const position = parseInt(file.match(/position(\d*)/)[1], 10);
+          const time = parseInt(file.match(/time(\d*)/)[1], 10);
           const hasCondition =
             treeObject.filter(entry => entry.name === `condition ${condition}`)
               .length > 0;
@@ -181,7 +179,6 @@ class VesicleAnalyzer extends Component<Props> {
       .catch(err => console.log(err));
     callRPCPromised('get_detected_circles', selectedImagePath, newEntry.params)
       .then(res => {
-        console.log(res);
         this.setState({ detectedImg: res.img_data });
         this.updateDiameters(selectedCondition, selectedPosition, selectedTime, res.diameters)
         return null;
@@ -276,7 +273,7 @@ class VesicleAnalyzer extends Component<Props> {
   };
 
   saveExcelFile = () => {
-    const {treeObject} = this.state
+    const {treeObject, scale} = this.state
     const content = "lol"
 
     // You can obviously give a direct path without use the dialog (C:/Program Files/path/myfileexample.txt)
@@ -292,11 +289,15 @@ class VesicleAnalyzer extends Component<Props> {
                 alert(`An error ocurred creating the file ${ err.message}`)
             }
             console.log(fileName)
-            saveToExcel(fileName, treeObject)
+            saveToExcel(fileName, treeObject, scale)
                         
             alert("The file has been succesfully saved");
         });
     }); 
+  }
+
+  changeScale = (event) => {
+    this.setState({scale: event.target.value})
   }
 
   render() {
@@ -312,8 +313,10 @@ class VesicleAnalyzer extends Component<Props> {
       completed,
       isCalculating,
       selectedPosition,
-      selectedCondition
+      selectedCondition,
+      scale
     } = this.state;
+    console.log(this.state.selectedParams)
     let currentlySelectedData = null;
     if (treeObject !== null) {
       currentlySelectedData =
@@ -337,7 +340,8 @@ class VesicleAnalyzer extends Component<Props> {
             detectedImg={detectedImg}
             loading={loading}
           />
-          { currentlySelectedData && <Table data={currentlySelectedData.diameters} />}
+
+          { currentlySelectedData && <Table data={currentlySelectedData.diameters} scale={scale} />}
 
           <Link to={routes.FrontPage}>
             <Button
@@ -373,6 +377,16 @@ class VesicleAnalyzer extends Component<Props> {
           >
             Save to excel
           </Button>
+          <TextField
+          required
+          id="required"
+          label="pixels/microns"
+          defaultValue={4.158}
+          type="number"
+          value={scale}
+          onChange={this.changeScale}
+        />
+
         </div>
         <LinearProgress
           color="secondary"

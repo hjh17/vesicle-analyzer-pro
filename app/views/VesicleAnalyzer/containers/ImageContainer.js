@@ -14,9 +14,9 @@ import {
 type Props = {
   classes: object,
   loading: object,
-  originalImg: string,
-  processedImg: string,
-  detectedImg: string,
+  originalImg: string | null,
+  processedImg: string | null,
+  detectedImg: string | null,
   currentlySelectedData: object,
   changeParams: object
 };
@@ -37,14 +37,14 @@ class ImageContainer extends Component<Props> {
         <Image imgData={imageData} isLoading={isLoading} />
       </div>
       {parameterControl &&
-        parameterControl.map(entry =>
-          this.generateParameterControl(entry, classes, changeParams, params)
+        parameterControl.map((entry, key) =>
+          this.generateParameterControl(entry, classes, changeParams, params, key)
         )}
     </div>
   );
 
-  generateParameterControl = (entry, classes, changeParams, params) => (
-    <div className={classes.parameterControl}>
+  generateParameterControl = (entry, classes, changeParams, params, key) => (
+    <div className={classes.parameterControl} key={key}>
       <span className={classes.parameterControlText}>{entry.name}</span>
       <Slider
         min={entry.min}

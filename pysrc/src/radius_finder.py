@@ -60,38 +60,15 @@ class RadiusFinder(object):
     minDist = params["centerDistance"]
     minRadius = params["minRadius"]
     maxRadius = params["maxRadius"]
+    radiusProportion = params["radiusProportion"]
 
     detected_circles, diameters = image_service.get_circled_image(img_path, (binary_threshold_min, binary_threshold_max), 5,
                                                        gaussian_blur, dp,
                                                        minDist,
                                                        int(minRadius), int(maxRadius))
+    diameters = [d*radiusProportion for d in diameters]
     return dict(img_data=self.img_to_base64(detected_circles), diameters=diameters)
 
-  def detect_circles(self, img_path, binary_threshold=(25, 100), gaussian_kernel_size=5, gaussian_blur=0, dp=2.4,
-                     minDist=40,
-                     minRadius=10, maxRadius=80):
-
-    if img_path in self.cache:
-      if 'circles' in self.cache[img_path]:
-        return json.dumps(self.cache[img_path]['circles'])
-    else:
-      self.cache[img_path] = dict()
-
-    self.circles = cv2.HoughCircles(self.cache[img_path]['processed_img'], cv2.HOUGH_GRADIENT, dp=dp, minDist=minDist,
-                                    minRadius=minRadius,
-                                    maxRadius=maxRadius)
-
-    if self.circles is None:
-      img_data = dict(detected_circles=self.img_to_base64(self.cache[img_path]['original_img']))
-      ans = dict(diameters=[], total=0, img_data=img_data)
-      self.cache[img_path].update({'circles': ans})
-      return json.dumps(ans)
-    diameters = self.circles[0, :, 2] * 2
-    circle_img = self.imshow(self.cache[img_path]['original_img'])
-    img_data = dict(detected_circles=self.img_to_base64(circle_img))
-    ans = dict(diameters=diameters.tolist(), total=len(diameters), img_data=img_data)
-    self.cache[img_path].update({'circles': ans})
-    return json.dumps(ans)
 
   def find_circles(self, img_path, binary_threshold=(25, 100), gaussian_kernel_size=5, gaussian_blur=0, dp=2.4,
                    minDist=40,
@@ -129,14 +106,16 @@ class RadiusFinder(object):
       minDist = params["centerDistance"]
       minRadius = params["minRadius"]
       maxRadius = params["maxRadius"]
+      radiusProportion = params["radiusProportion"]
+
       for path in paths:
           img = cv2.imread(path)
           processed_img = self._preprocess_image(path, (binary_threshold_min, binary_threshold_max), gaussian_blur)
           ans = dict(img_data=self.img_to_base64(img), processed_img=self.img_to_base64(processed_img))
 
           self.circles = cv2.HoughCircles(processed_img, cv2.HOUGH_GRADIENT, dp=dp, minDist=minDist,
-                                          minRadius=minRadius,
-                                          maxRadius=maxRadius)
+                                          minRadius=int(minRadius),
+                                          maxRadius=int(maxRadius))
 
           if self.circles is None:
             circle_img = img
@@ -144,6 +123,7 @@ class RadiusFinder(object):
           else:
             diameters = self.circles[0, :, 2] * 2
             diameters = diameters.tolist()
+            diameters = [d*radiusProportion for d in diameters]
             circle_img = self.imshow(img)
 
           gevent.sleep(0.0001)
@@ -190,20 +170,6 @@ class RadiusFinder(object):
     jpg_as_text = base64.b64encode(buffer)
     return jpg_as_text.decode()
 
-  def run_analyzes(self, path):
-    files = glob.glob(path + '/*.tif')
-    for file in files:
-      self.get_original(file)
-      self.process_image(file)
-      self.detect_circles(file)
-      self.get_original(file)
-
-      self.process_image(file)
-
-      self.detect_circles(file)
-      print(self.cache[file]['circles'])
-
-      break
 
 
 if __name__ == '__main__':

@@ -235,7 +235,8 @@
     "recompose": "^0.28.2",
     "redux": "^4.0.0",
     "redux-thunk": "^2.3.0",
-    "source-map-support": "^0.5.6"
+    "source-map-support": "^0.5.6",
+    "xlsx-style": "^0.8.13"
   },
   "devEngines": {
     "node": ">=7.x",

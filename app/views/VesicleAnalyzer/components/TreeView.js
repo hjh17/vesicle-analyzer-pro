@@ -7,8 +7,6 @@ import withLoadingSpinner from '../../../utils/with/loadingSpinner';
 import { treeViewStyle, treeStyle } from '../styles/treeViewStyle';
 
 type Props = {
-  classes: object,
-  imgData: string,
   data: object
 };
 
