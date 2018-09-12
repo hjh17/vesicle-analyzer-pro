@@ -222,7 +222,6 @@
     "devtron": "^1.4.0",
     "electron-debug": "^2.0.0",
     "history": "^4.7.2",
-    "node-excel-export": "^1.4.4",
     "react": "^16.4.1",
     "react-compound-slider": "^0.14.0",
     "react-dom": "^16.4.1",
@@ -236,7 +235,7 @@
     "redux": "^4.0.0",
     "redux-thunk": "^2.3.0",
     "source-map-support": "^0.5.6",
-    "xlsx-style": "^0.8.13"
+    "xlsx": "^0.14.0"
   },
   "devEngines": {
     "node": ">=7.x",

@@ -15,11 +15,11 @@ import routes from '../../constants/routes.json';
 import ImageContainer from './containers/ImageContainer';
 import TreeView from './components/TreeView';
 import LoadingDialog from './components/LoadingDialog';
-import Table from "./components/Table";
+import Table from './components/Table';
 
 import { callRPCPromised, callRPC } from '../../utils/api/rpc';
-import { defaultParams } from "../../variables/paramControl"
-import saveToExcel from "./saveToExcel"
+import { defaultParams } from '../../variables/paramControl';
+import saveToExcel from './saveToExcel';
 
 type Props = {
   classes: object
@@ -49,7 +49,6 @@ class VesicleAnalyzer extends Component<Props> {
     };
   }
 
-
   onClickProcess = filePath => {
     this.setState({ loadingProcessed: true });
     window.client
@@ -69,12 +68,25 @@ class VesicleAnalyzer extends Component<Props> {
   };
 
   onClickDetect = filePath => {
-    const { selectedCondition, selectedPosition, selectedTime, selectedParams} = this.state
+    const {
+      selectedCondition,
+      selectedPosition,
+      selectedTime,
+      selectedParams
+    } = this.state;
     this.setState({ loadingDetectedCircles: true });
     callRPCPromised('get_detected_circles', filePath, selectedParams)
       .then(res => {
-        this.setState({ detectedImg: res.img_data, loadingDetectedCircles: false });
-        this.updateDiameters(selectedCondition, selectedPosition, selectedTime, res.diameters)
+        this.setState({
+          detectedImg: res.img_data,
+          loadingDetectedCircles: false
+        });
+        this.updateDiameters(
+          selectedCondition,
+          selectedPosition,
+          selectedTime,
+          res.diameters
+        );
         return null;
       })
       .catch(err => console.log(err));
@@ -101,7 +113,6 @@ class VesicleAnalyzer extends Component<Props> {
           radiusProportion: 1
         };
         fileNames.forEach((file, idx) => {
-
           const condition = parseInt(file.match(/condition(\d*)/)[1], 10);
           const position = parseInt(file.match(/position(\d*)/)[1], 10);
           const time = parseInt(file.match(/time(\d*)/)[1], 10);
@@ -170,7 +181,10 @@ class VesicleAnalyzer extends Component<Props> {
     newTreeObject[selectedCondition - 1].children[
       selectedPosition - 1
     ] = newEntry;
-    this.setState({ treeObject: newTreeObject, selectedParams: { ...oldEntry.params, ...value } });
+    this.setState({
+      treeObject: newTreeObject,
+      selectedParams: { ...oldEntry.params, ...value }
+    });
     callRPCPromised('get_processed_image', selectedImagePath, newEntry.params)
       .then(res => {
         this.setState({ processedImg: res.img_data });
@@ -180,48 +194,52 @@ class VesicleAnalyzer extends Component<Props> {
     callRPCPromised('get_detected_circles', selectedImagePath, newEntry.params)
       .then(res => {
         this.setState({ detectedImg: res.img_data });
-        this.updateDiameters(selectedCondition, selectedPosition, selectedTime, res.diameters)
+        this.updateDiameters(
+          selectedCondition,
+          selectedPosition,
+          selectedTime,
+          res.diameters
+        );
         return null;
       })
       .catch(err => console.log(err));
   };
 
   updateDiameters = (condition, position, time, diameters) => {
-    const {
-      treeObject,
-    } = this.state;
-    const oldEntry =
-      treeObject[condition - 1].children[position - 1];
-      const newEntry = { ...oldEntry, diameters };
-      const newTreeObject = treeObject;
-      newTreeObject[condition - 1].children[
-        position - 1
-      ] = newEntry;
-      this.setState({ treeObject: newTreeObject });
+    const { treeObject } = this.state;
+    const oldEntry = treeObject[condition - 1].children[position - 1];
+    const newEntry = { ...oldEntry, diameters };
+    const newTreeObject = treeObject;
+    newTreeObject[condition - 1].children[position - 1] = newEntry;
+    this.setState({ treeObject: newTreeObject });
   };
 
-  getIndexByPath = (path) => {
+  getIndexByPath = path => {
     const { treeObject } = this.state;
     let entry = null;
-    treeObject.forEach(condition => condition.children.forEach(position => {
-      if (position.path === path) {
-        entry = position
-      }
-    }))
-    return [entry.condition, entry.position, entry.time]
-  }
+    treeObject.forEach(condition =>
+      condition.children.forEach(position => {
+        if (position.path === path) {
+          entry = position;
+        }
+      })
+    );
+    return [entry.condition, entry.position, entry.time];
+  };
 
   onClickCalculateAll = () => {
-    const {
-      treeObject,
-      selectedParams
-    } = this.state;
-    const imagePaths = []
-    treeObject.forEach(condition => condition.children.forEach(position => imagePaths.push(position.path)))
+    const { treeObject, selectedParams } = this.state;
+    const imagePaths = [];
+    treeObject.forEach(condition =>
+      condition.children.forEach(position => imagePaths.push(position.path))
+    );
 
-
-    window.client.invoke('calculate_all', imagePaths, selectedParams, (error, res, more) => {
-      this.updateDiameters(...this.getIndexByPath(res.path), res.diameters)
+    window.client.invoke(
+      'calculate_all',
+      imagePaths,
+      selectedParams,
+      (error, res, more) => {
+        this.updateDiameters(...this.getIndexByPath(res.path), res.diameters);
         this.setState({
           originalImg: res.img_data,
           processedImg: res.processed_img,
@@ -231,11 +249,10 @@ class VesicleAnalyzer extends Component<Props> {
           completed: prevState.completed + 1 / imagePaths.length
         }));
         return null;
-      });
-      this.setState({ isCalculating: false });
-    }
-
-
+      }
+    );
+    this.setState({ isCalculating: false });
+  };
 
   onClickTree = treeEntry => {
     this.setState({
@@ -273,32 +290,32 @@ class VesicleAnalyzer extends Component<Props> {
   };
 
   saveExcelFile = () => {
-    const {treeObject, scale} = this.state
-    const content = "lol"
+    const { treeObject, scale } = this.state;
+    const content = 'lol';
 
     // You can obviously give a direct path without use the dialog (C:/Program Files/path/myfileexample.txt)
-    remote.dialog.showSaveDialog({title:"Save analysis as Excel", defaultPath:"analysis.xlsx"}, (fileName) => {
-        if (fileName === undefined){
-            console.log("You didn't save the file");
-            return;
+    remote.dialog.showSaveDialog(
+      { title: 'Save analysis as Excel', defaultPath: 'analysis.xlsx' },
+      fileName => {
+        if (fileName === undefined) {
+          console.log("You didn't save the file");
+          return;
         }
-    
-        // fileName is a string that contains the path and filename created in the save file dialog.  
-        fs.writeFile(fileName, content, (err) => {
-            if(err){
-                alert(`An error ocurred creating the file ${ err.message}`)
-            }
-            console.log(fileName)
-            saveToExcel(fileName, treeObject, scale)
-                        
-            alert("The file has been succesfully saved");
-        });
-    }); 
-  }
 
-  changeScale = (event) => {
-    this.setState({scale: event.target.value})
-  }
+        // fileName is a string that contains the path and filename created in the save file dialog.
+
+
+        console.log(fileName);
+        saveToExcel(fileName, treeObject, scale);
+
+        alert('The file has been succesfully saved');
+      }
+    );
+  };
+
+  changeScale = event => {
+    this.setState({ scale: event.target.value });
+  };
 
   render() {
     const { classes } = this.props;
@@ -316,7 +333,7 @@ class VesicleAnalyzer extends Component<Props> {
       selectedCondition,
       scale
     } = this.state;
-    console.log(this.state.selectedParams)
+    console.log(this.state.selectedParams);
     let currentlySelectedData = null;
     if (treeObject !== null) {
       currentlySelectedData =
@@ -341,7 +358,9 @@ class VesicleAnalyzer extends Component<Props> {
             loading={loading}
           />
 
-          { currentlySelectedData && <Table data={currentlySelectedData.diameters} scale={scale} />}
+          {currentlySelectedData && (
+            <Table data={currentlySelectedData.diameters} scale={scale} />
+          )}
 
           <Link to={routes.FrontPage}>
             <Button
@@ -378,15 +397,14 @@ class VesicleAnalyzer extends Component<Props> {
             Save to excel
           </Button>
           <TextField
-          required
-          id="required"
-          label="pixels/microns"
-          defaultValue={4.158}
-          type="number"
-          value={scale}
-          onChange={this.changeScale}
-        />
-
+            required
+            id="required"
+            label="pixels/microns"
+            defaultValue={4.158}
+            type="number"
+            value={scale}
+            onChange={this.changeScale}
+          />
         </div>
         <LinearProgress
           color="secondary"

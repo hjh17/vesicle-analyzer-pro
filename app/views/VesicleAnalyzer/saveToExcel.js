@@ -1,8 +1,79 @@
 import fs from 'fs';
-import excel from 'node-excel-export';
+import XLSX from 'xlsx';
+// import excel from 'node-excel-export';
 
 export const saveToExcel = (path, data, scale) => {
-  console.log(data);
+  const conditions = [];
+  const positions = [];
+  data.forEach(condition => {
+    conditions.push(condition.name);
+    condition.children.forEach(position => {
+      positions.push(position.name);
+      conditions.push('');
+    });
+    conditions.pop();
+  });
+  console.log(conditions);
+  console.log(positions);
+
+  let maxNumberCircles = 0;
+  data.forEach(condition =>
+    condition.children.forEach(position => {
+      if (position.diameters.length >= maxNumberCircles) {
+        maxNumberCircles = position.diameters.length;
+      }
+    })
+  );
+
+  const dataset = [];
+  let entry = {};
+  for (let i = 0; i < maxNumberCircles; i += 1) {
+    entry = {};
+    for (let j = 0; j < data.length; j += 1) {
+      for (let k = 0; k < data[j].children.length; k += 1) {
+        const key = `condition${data[j].children[k].condition}${
+          data[j].children[k].position
+        }`;
+        let value = data[j].children[k].diameters[i];
+        if (i >= data[j].children[k].diameters.length) {
+          value = '';
+        } else {
+          value = data[j].children[k].diameters[i] / scale;
+        }
+        entry[key] = value;
+      }
+    }
+    dataset.push(entry);
+  }
+
+  const asdf = [conditions, positions];
+  dataset.forEach(entry => {
+    const zxcv = [];
+    Object.keys(entry).forEach(key => zxcv.push(entry[key]));
+    asdf.push(zxcv);
+  });
+
+  // /// COUNT
+  const headingCount = [];
+  data.forEach(condition => {
+    let numberOfVesicles = 0;
+    condition.children.forEach(
+      position => (numberOfVesicles += position.diameters.length)
+    );
+    headingCount.push([condition.name, numberOfVesicles]);
+  });
+  console.log(headingCount);
+
+  const worksheet = XLSX.utils.aoa_to_sheet(asdf);
+  const count = XLSX.utils.aoa_to_sheet(headingCount);
+  const new_workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(new_workbook, worksheet, 'Diameters');
+  XLSX.utils.book_append_sheet(new_workbook, count, 'Count');
+
+  XLSX.writeFile(new_workbook, path);
+};
+
+export const saveToExcel2 = (path, data, scale) => {
   const styles = {
     headerDark: {
       fill: {
@@ -34,7 +105,7 @@ export const saveToExcel = (path, data, scale) => {
       }
     }
   };
-  
+
   // Array of objects representing heading rows (very top)
   const heading = [
     [
@@ -46,7 +117,7 @@ export const saveToExcel = (path, data, scale) => {
   ];
 
   // Here you specify the export structure
-/*   const specification = {
+  /*   const specification = {
     customer_name: {
       // <- the key should match the actual data key
       displayName: 'Customer', // <- Here you specify the column header
@@ -79,14 +150,15 @@ export const saveToExcel = (path, data, scale) => {
   }; */
 
   const specification = {};
-  data.forEach(
-    condition => condition.children.forEach(position => 
-      (specification[`condition${position.condition}${position.position}`] = {
-        displayName: `condition ${position.condition}`,
-        headerStyle: styles.headerDark,
-        cellStyle: styles.cellPink, // <- Cell style
-        width: 220 // <- width in pixels
-      })
+  data.forEach(condition =>
+    condition.children.forEach(
+      position =>
+        (specification[`condition${position.condition}${position.position}`] = {
+          displayName: `condition ${position.condition}`,
+          headerStyle: styles.headerDark,
+          cellStyle: styles.cellPink, // <- Cell style
+          width: 220 // <- width in pixels
+        })
     )
   );
 
@@ -95,51 +167,58 @@ export const saveToExcel = (path, data, scale) => {
   // dataset contains more fields as the report is build based on the
   // specification provided above. But you should have all the fields
   // that are listed in the report specification
-  
-  let maxNumberCircles = 0;
-  data.forEach(condition => condition.children.forEach(position => {
-    if (position.diameters.length >= maxNumberCircles){
-      maxNumberCircles = position.diameters.length
-    }
-  }))
 
-  const dataset = []
-  let entry = {}
+  let maxNumberCircles = 0;
+  data.forEach(condition =>
+    condition.children.forEach(position => {
+      if (position.diameters.length >= maxNumberCircles) {
+        maxNumberCircles = position.diameters.length;
+      }
+    })
+  );
+
+  const dataset = [];
+  let entry = {};
   for (let i = 0; i < maxNumberCircles; i += 1) {
-    entry = {}
-    for (let j = 0; j < data.length; j+= 1) {
-      for (let k = 0; k < data[j].children.length; k += 1){
-        const key = `condition${data[j].children[k].condition}${data[j].children[k].position}`
+    entry = {};
+    for (let j = 0; j < data.length; j += 1) {
+      for (let k = 0; k < data[j].children.length; k += 1) {
+        const key = `condition${data[j].children[k].condition}${
+          data[j].children[k].position
+        }`;
         let value = data[j].children[k].diameters[i];
         if (i >= data[j].children[k].diameters.length) {
-          value = ""
+          value = '';
         } else {
-          value = data[j].children[k].diameters[i]/scale
+          value = data[j].children[k].diameters[i] / scale;
         }
-        entry[key] = value
+        entry[key] = value;
       }
     }
-    dataset.push(entry)
+    dataset.push(entry);
   }
-
 
   // Define an array of merges. 1-1 = A:1
   // The merges are independent of the data.
   // A merge will overwrite all data _not_ in the top-left cell.
-  const merges = []
+  const merges = [];
   data.forEach((condition, idx) => {
-    merges.push({start: {row:3, column: idx*condition.children.length+1}, end: {row: 3, column: (idx+1)*condition.children.length}})
-  })
+    merges.push({
+      start: { row: 3, column: idx * condition.children.length + 1 },
+      end: { row: 3, column: (idx + 1) * condition.children.length }
+    });
+  });
 
   // /// COUNT
-  const headingCount = []
+  const headingCount = [];
   data.forEach(condition => {
     let numberOfVesicles = 0;
-    condition.children.forEach(position => numberOfVesicles += position.diameters.length)
-    headingCount.push([condition.name, numberOfVesicles])
-  })
-  console.log(headingCount)
-
+    condition.children.forEach(
+      position => (numberOfVesicles += position.diameters.length)
+    );
+    headingCount.push([condition.name, numberOfVesicles]);
+  });
+  console.log(headingCount);
 
   // Create the excel report.
   // This function will return Buffer
@@ -157,7 +236,7 @@ export const saveToExcel = (path, data, scale) => {
       heading: headingCount, // <- Raw heading array (optional)
       specification: [], // <- Report specification
       data: [] // <--
-    },
+    }
   ]);
 
   // You can then return this straight
