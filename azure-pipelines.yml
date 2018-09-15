@@ -7,13 +7,14 @@ pool:
   vmImage: 'Ubuntu 16.04'
 
 steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '8.x'
-  displayName: 'Install Node.js'
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '8.x'
+    displayName: 'Install Node.js'
 
-- script: |
-    apt-get g++-4.8
-    npm install yarn -g
-    yarn
-  displayName: 'yarn install and build'
+  - script: |
+      curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+      echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+      apt-get update && apt-get install yarn
+      yarn
+    displayName: 'yarn install and build'
