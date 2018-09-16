@@ -64,5 +64,11 @@ export default merge.smart(baseConfig, {
   node: {
     __dirname: false,
     __filename: false
-  }
+  },
+  externals: [
+		{
+			'./cptable': 'var cptable',
+			'../xlsx.js': 'var _XLSX'
+		}
+	],
 });

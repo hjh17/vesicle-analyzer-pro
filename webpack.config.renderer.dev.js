@@ -204,6 +204,13 @@ export default merge.smart(baseConfig, {
     ]
   },
 
+  externals: [
+		{
+			'./cptable': 'var cptable',
+			'../xlsx.js': 'var _XLSX'
+		}
+	],
+
   plugins: [
     requiredByDLLConfig
       ? null

@@ -7,12 +7,22 @@ pool:
   vmImage: 'Ubuntu 16.04'
 
 steps:
+<<<<<<< HEAD
   - task: NodeTool@0
     inputs:
       versionSpec: '8.x'
     displayName: 'Install Node.js'
 
 - script: |
+=======
+- task: NodeTool@0
+  inputs:
+    versionSpec: '8.x'
+  displayName: 'Install Node.js'
+
+- script: |
+    apt-get g++-4.8
+>>>>>>> 70e2c17131692e030b41f6ad441734ff9a26cb34
     npm install yarn -g
     yarn
   displayName: 'yarn install and build'

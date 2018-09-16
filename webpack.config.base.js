@@ -28,10 +28,28 @@ function filterDepWithoutEntryPoints(dep: string): boolean {
   }
 }
 
+module.exports = {
+	/* ... */
+	module: {
+		noParse: [/jszip.js$/]
+	},
+	node: {
+		fs: false,
+		Buffer: false
+	}
+}
+
 export default {
+  node: {
+    fs: 'empty'
+  },
   externals: [
     ...Object.keys(externals || {}),
-    ...Object.keys(possibleExternals || {}).filter(filterDepWithoutEntryPoints)
+    ...Object.keys(possibleExternals || {}).filter(filterDepWithoutEntryPoints),
+		{
+			'./cptable': 'var cptable',
+			'../xlsx.js': 'var _XLSX'
+		}
   ],
 
   module: {
@@ -46,7 +64,11 @@ export default {
           }
         }
       }
-    ]
+    ],
+    noParse: [
+			/xlsx.core.min.js/,
+			/xlsx.full.min.js/
+		]
   },
 
   output: {
