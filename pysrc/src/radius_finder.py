@@ -65,7 +65,8 @@ class RadiusFinder(object):
     detected_circles, diameters = image_service.get_circled_image(img_path, (binary_threshold_min, binary_threshold_max), 5,
                                                        gaussian_blur, dp,
                                                        minDist,
-                                                       int(minRadius), int(maxRadius))
+                                                       int(minRadius), int(maxRadius),
+                                                       radiusProportion)
     diameters = [d*radiusProportion for d in diameters]
     return dict(img_data=self.img_to_base64(detected_circles), diameters=diameters)
 
