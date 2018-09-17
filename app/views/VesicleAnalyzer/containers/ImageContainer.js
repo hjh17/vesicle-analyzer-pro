@@ -38,7 +38,13 @@ class ImageContainer extends Component<Props> {
       </div>
       {parameterControl &&
         parameterControl.map((entry, key) =>
-          this.generateParameterControl(entry, classes, changeParams, params, key)
+          this.generateParameterControl(
+            entry,
+            classes,
+            changeParams,
+            params,
+            key
+          )
         )}
     </div>
   );
@@ -84,6 +90,12 @@ class ImageContainer extends Component<Props> {
     }
     return (
       <div className={classes.imageContainer}>
+        {currentlySelectedData && (
+          <h3>
+            selected condition: {currentlySelectedData.condition}, position:{' '}
+            {currentlySelectedData.position}
+          </h3>
+        )}
         {this.generateImageBox(originalImg, 'Original', loading[0], classes)}
 
         {this.generateImageBox(

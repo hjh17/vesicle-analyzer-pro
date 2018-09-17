@@ -33,11 +33,14 @@ class TreeView extends Component<Props> {
       this.setState({ currentlySelected: node.key });
       this.props.onClickTree(node);
     }
+
     if (this.state.cursor) {
       this.state.cursor.active = false;
     }
+
     node.active = true;
     if (node.children) {
+      console.log('children');
       node.toggled = toggled;
     }
     this.setState({ cursor: node });
@@ -50,7 +53,7 @@ class TreeView extends Component<Props> {
     const dataLength = data.map(e => e.children.length).reduce((a, b) => a + b);
     this.setState({ currentlySelected: selected });
     let found = 0;
-    for (let i = 0; i < data.length; i++) {
+    for (let i = 0; i < data.length; i += 1) {
       found = data[i].children.find(e => e.key === selected % dataLength);
       if (found) {
         break;
@@ -66,7 +69,7 @@ class TreeView extends Component<Props> {
     const dataLength = data.map(e => e.children.length).reduce((a, b) => a + b);
     this.setState({ currentlySelected: selected });
     let found = 0;
-    for (let i = 0; i < data.length; i++) {
+    for (let i = 0; i < data.length; i += 1) {
       found = data[i].children.find(e => e.key === selected % dataLength);
       if (found) {
         break;
