@@ -9,6 +9,7 @@ steps:
     versionSpec: '10.8.0'
   
 - script: |
+    npm i -g npm@6.2.0
     npm install yarn -g
     yarn
     
