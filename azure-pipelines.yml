@@ -10,5 +10,5 @@ steps:
   
 - script: |
     npm install yarn -g
-    node -v
+    yarn
     
