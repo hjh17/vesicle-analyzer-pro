@@ -9,10 +9,10 @@ steps:
     versionSpec: '10.8.0'
   
 - script: |
-    rm -rf node_modules
-    npm cache clean
-    npm i
-    npm rb
+    add-apt-repository ppa:ubuntu-toolchain-r/test
+    apt-get update -y
+    apt-get install -y g++-4.8
+    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
     npm i -g npm@6.2.0
     npm install -g node-gyp
     npm install yarn -g
