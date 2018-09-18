@@ -10,6 +10,7 @@ steps:
   
 - script: |
     npm i -g npm@6.2.0
+    npm install -g node-gyp
     npm install yarn -g
     yarn
     
