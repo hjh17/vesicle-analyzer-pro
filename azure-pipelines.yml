@@ -9,6 +9,10 @@ steps:
     versionSpec: '10.8.0'
   
 - script: |
+    rm -rf node_modules
+    npm cache clean
+    npm i
+    npm rb
     npm i -g npm@6.2.0
     npm install -g node-gyp
     npm install yarn -g
