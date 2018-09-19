@@ -38,6 +38,6 @@ steps:
     #npm i -g npm@6.2.0
     # sudo npm install zmq -g --unsafe-perm=true --allow-root 
     # npm install -g node-gyp
-    
-    yarn
+    npm install
+    #yarn
     
