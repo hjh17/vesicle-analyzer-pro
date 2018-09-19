@@ -17,6 +17,9 @@ steps:
     
     sudo apt-get update -y
     echo 3
+    sudo rm /var/lib/apt/lists/lock
+    sudo rm /var/cache/apt/archives/lock
+    sudo rm /var/lib/dpkg/lock
     sudo apt-get upgrade -y
     echo 4
     sudo rm /var/lib/apt/lists/lock
