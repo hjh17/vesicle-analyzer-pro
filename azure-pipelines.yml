@@ -30,11 +30,14 @@ steps:
     echo npm version
     npm -v
     echo yarn version
+    npm install yarn -g
+    sudo rm -rf node_modules &&
+    sudo npm cache clean &&
     yarn -v
 
     #npm i -g npm@6.2.0
     # sudo npm install zmq -g --unsafe-perm=true --allow-root 
     # npm install -g node-gyp
-    #npm install yarn -g
+    
     yarn
     
