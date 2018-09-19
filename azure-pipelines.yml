@@ -27,7 +27,8 @@ steps:
     
 
     echo pkg-config stuff
-    PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+    which pkg-config
+    export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
     pkg-config libzmq --libs
     
     find ~/ -type f -name "libzmq.pc"
