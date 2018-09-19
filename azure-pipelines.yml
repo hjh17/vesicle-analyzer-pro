@@ -47,11 +47,11 @@ steps:
     yarn -v
 
     #npm i -g npm@6.2.0
-    npm install zmq -g --unsafe-perm=true --allow-root 
+    #npm install zmq -g --unsafe-perm=true --allow-root 
     #npm install -g node-gyp
     # npm install
     # export CXX="g++-4.8"
-    # yarn
-    pkg-config libzmq --libs
+    sudo yarn
+    #pkg-config libzmq --libs
     
     
