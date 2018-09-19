@@ -23,12 +23,13 @@ steps:
     sudo apt-get install build-essential g++
     ln -sv /usr/bin/g++-4.8 /usr/bin/g++
     
-    export CXX="g++-4.8"
+    
     
     
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
     sudo apt-get update && sudo apt-get install yarn
-    
+    echo pkg-config stuff
+    pkg-config libzmq --libs
     echo gcc version
     gcc -v
     echo make version
@@ -45,7 +46,8 @@ steps:
 
     #npm i -g npm@6.2.0
     # sudo npm install zmq -g --unsafe-perm=true --allow-root 
-    # npm install -g node-gyp
-    npm install
-    #yarn
+    npm install -g node-gyp
+    # npm install
+    # export CXX="g++-4.8"
+    # yarn
     
