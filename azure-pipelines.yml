@@ -10,35 +10,29 @@ steps:
   
 - script: |
     echo 1
-    sudo lsof /var/lib/dpkg/lock
-    sudo rm /var/lib/apt/lists/lock
-    sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+    add-apt-repository ppa:ubuntu-toolchain-r/test
     echo 2
     
-    sudo apt-get update -y
+    apt-get update -y
     echo 3
-    sudo rm /var/lib/apt/lists/lock
-    sudo rm /var/cache/apt/archives/lock
-    sudo rm /var/lib/dpkg/lock
-    sudo apt-get upgrade -y
+    apt-get upgrade -y
     echo 4
-    sudo rm /var/lib/apt/lists/lock
-    sudo apt-get install -y autoconf
+    apt-get install -y autoconf
     
     echo 5
-    sudo apt-get install -y build-essential g++
+    apt-get install -y build-essential g++
     echo 6
-    sudo apt-get install -y g++-4.8
+    apt-get install -y g++-4.8
     echo 7
-    sudo apt-get install -y libtool pkg-config build-essential autoconf automake
+    apt-get install -y libtool pkg-config build-essential autoconf automake
     echo 8
-    sudo apt-get install -y libzmq-dev
+    apt-get install -y libzmq-dev
     echo 9
     
-    sudo apt-get purge g++ 
-    sudo apt-get update 
-    sudo apt-get upgrade 
-    sudo apt-get install build-essential g++
+    apt-get purge g++ 
+    apt-get update 
+    apt-get upgrade 
+    apt-get install build-essential g++
     ln -sv /usr/bin/g++-4.8 /usr/bin/g++
     
     
