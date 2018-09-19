@@ -14,7 +14,7 @@ steps:
     sudo apt-get install -y g++-4.8
     export CXX="g++-4.8"
     npm i -g npm@6.2.0
-    npm install zmq -g
+    sudo npm install zmq -g --unsafe-perm=true --allow-root 
     npm install -g node-gyp
     npm install yarn -g
     yarn
