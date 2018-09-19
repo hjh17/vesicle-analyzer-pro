@@ -21,14 +21,20 @@ steps:
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
     sudo apt-get update && sudo apt-get install yarn
     
+    echo gcc version
     gcc -v
+    echo make version
     make -v
+    echo node version
     node -v
+    echo npm version
     npm -v
+    echo yarn version
+    yarn -v
 
     #npm i -g npm@6.2.0
     # sudo npm install zmq -g --unsafe-perm=true --allow-root 
     # npm install -g node-gyp
     #npm install yarn -g
-    #yarn
+    yarn
     
