@@ -31,6 +31,7 @@ steps:
     sudo apt-get update && sudo apt-get install yarn
     echo pkg-config stuff
     pkg-config libzmq --libs
+    find ~/ -type f -name "libzmq.pc"
     echo gcc version
     gcc -v
     echo make version
@@ -50,7 +51,7 @@ steps:
     npm install -g node-gyp
     # npm install
     # export CXX="g++-4.8"
-    yarn
+    # yarn
     pkg-config libzmq --libs
     
     
