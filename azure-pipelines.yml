@@ -14,10 +14,12 @@ steps:
     sudo apt-get upgrade -y
     sudo apt-get install -y build-essential g++
     sudo apt-get install -y g++-4.8
+    sudo apt-get install libtool pkg-config build-essential autoconf automake
+    sudo apt-get install libzmq-dev
     export CXX="g++-4.8"
     npm i -g npm@6.2.0
     sudo npm install zmq -g --unsafe-perm=true --allow-root 
     npm install -g node-gyp
-    npm install yarn -g
-    yarn
+    # npm install yarn -g
+    # yarn
     
