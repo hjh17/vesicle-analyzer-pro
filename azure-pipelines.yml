@@ -17,8 +17,15 @@ steps:
     sudo apt-get install libtool pkg-config build-essential autoconf automake
     sudo apt-get install -y libzmq-dev
     export CXX="g++-4.8"
+    
+    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+    sudo apt-get update && sudo apt-get install yarn
+    
     gcc -v
     make -v
+    node -v
+    npm -v
+
     #npm i -g npm@6.2.0
     # sudo npm install zmq -g --unsafe-perm=true --allow-root 
     # npm install -g node-gyp
