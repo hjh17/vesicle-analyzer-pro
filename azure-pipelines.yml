@@ -9,25 +9,18 @@ jobs:
   - task: NodeTool@0
     inputs:
       versionSpec: '10.8.0'
+      displayName: 'Install npm'
   - task: CmdLine@2
     inputs:
       script: |
         sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-        sudo apt-get update -y
-        sudo apt-get upgrade -y
         sudo apt-get install -y autoconf build-essential g++-4.8 libtool pkg-config build-essential autoconf automake libzmq-dev
         export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+      displayName: 'Install build tools'
+  - bash: |
+      curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.9.4
+      displayName: 'install yarn'
 
   - script: |
-      #sleep 4m
-      #sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-      #sudo apt-get update -y
-      #sudo apt-get upgrade -y
-      #sudo apt-get install -y autoconf
-      #sudo apt-get install -y build-essential g++
-      #sudo apt-get install -y g++-4.8
-      #sudo apt-get install -y libtool pkg-config build-essential autoconf automake
-      #sudo apt-get install -y 
-      
-      sudo npm install yarn -g
       sudo yarn
+      displayname: 'yarn install'
