@@ -18,10 +18,6 @@ jobs:
         sudo apt-get install -y autoconf build-essential g++-4.8 libtool pkg-config build-essential autoconf automake libzmq-dev
         export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
       displayName: 'Install build tools'
-  - bash: |
-      curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.9.4
-    displayName: 'install yarn'
-
   - script: |
       sudo npm install yarn -g
       sudo yarn
