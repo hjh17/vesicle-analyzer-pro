@@ -4,10 +4,6 @@
 
 phases:
 - phase: A
-steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '10.8.0'
 
 - script: |
     sleep 4m
@@ -23,7 +19,6 @@ steps:
     sudo npm install yarn -g
     sudo yarn
 - phase: B
-steps:
 - script: |
     echo lol
 
