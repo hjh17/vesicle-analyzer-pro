@@ -9,12 +9,15 @@ jobs:
   - task: NodeTool@0
     inputs:
       versionSpec: '10.8.0'
+  - task: Bash@3
+    inputs:
+      script: add-apt-repository ppa:ubuntu-toolchain-r/test && apt-get update -y && apt-get upgrade -y
 
   - script: |
-      sleep 4m
-      sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-      sudo apt-get update -y
-      sudo apt-get upgrade -y
+      #sleep 4m
+      #sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+      #sudo apt-get update -y
+      #sudo apt-get upgrade -y
       sudo apt-get install -y autoconf
       sudo apt-get install -y build-essential g++
       sudo apt-get install -y g++-4.8
