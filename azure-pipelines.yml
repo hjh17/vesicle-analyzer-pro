@@ -10,56 +10,15 @@ steps:
   
 - script: |
     sleep 4m
-    echo 1
     sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-    echo 2
-    
     sudo apt-get update -y
-    echo 3
     sudo apt-get upgrade -y
-    echo 4
     sudo apt-get install -y autoconf
-    
-    echo 5
     sudo apt-get install -y build-essential g++
-    echo 6
     sudo apt-get install -y g++-4.8
-    echo 7
     sudo apt-get install -y libtool pkg-config build-essential autoconf automake
-    echo 8
     sudo apt-get install -y libzmq-dev
-    echo 9
-    
-    #sudo apt-get purge g++ 
-    #sudo apt-get update 
-    #sudo apt-get upgrade 
-    #sudo apt-get install build-essential g++
-    #ln -sv /usr/bin/g++-4.8 /usr/bin/g++
-    
-    
-    echo pkg-config stuff
-    which pkg-config
     export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
-    pkg-config libzmq --libs
-    
-    find ~/ -type f -name "libzmq.pc"
-    echo gcc version
-    gcc -v
-    echo make version
-    make -v
-    echo node version
-    node -v
-    echo npm version
-    npm -v
-    echo yarn version
     sudo npm install yarn -g
-    #sudo rm -rf node_modules &&
-    #sudo npm cache clean &&
-    yarn -v
-    #npm i -g npm@6.2.0
-    #npm install zmq -g --unsafe-perm=true --allow-root 
-    #npm install -g node-gyp
-    # npm install
-    # export CXX="g++-4.8"
     sudo yarn
-    #pkg-config libzmq --libs
+
