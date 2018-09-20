@@ -19,8 +19,7 @@ jobs:
       displayName: 'Install build tools'
   - bash: |
       curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.9.4
-      displayName: 'install yarn'
+    displayName: 'install yarn'
 
   - script: |
       sudo yarn
-      displayname: 'yarn install'
