@@ -1,28 +1,24 @@
-# Node.js with React
-# Build a Node.js application that uses React.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/vsts/pipelines/languages/javascript
+# Build NodeJS Express app using Azure Pipelines
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript?view=vsts
+jobs:
+- job: Build
+  pool:
+    vmImage: 'Ubuntu 16.04'
 
-pool:
-  vmImage: 'Ubuntu 16.04'
-
-steps:
-<<<<<<< HEAD
+  steps:
   - task: NodeTool@0
     inputs:
-      versionSpec: '8.x'
-    displayName: 'Install Node.js'
-
-- script: |
-=======
-- task: NodeTool@0
-  inputs:
-    versionSpec: '8.x'
-  displayName: 'Install Node.js'
-
-- script: |
-    apt-get g++-4.8
->>>>>>> 70e2c17131692e030b41f6ad441734ff9a26cb34
-    npm install yarn -g
-    yarn
-  displayName: 'yarn install and build'
+      versionSpec: '10.8.0'
+      displayName: 'Install npm'
+  - task: CmdLine@2
+    inputs:
+      script: |
+        sleep 2m
+        sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+        sudo apt-get install -y autoconf build-essential g++-4.8 libtool pkg-config build-essential autoconf automake libzmq-dev
+        export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+      displayName: 'Install build tools'
+  - script: |
+      sudo npm install yarn -g
+      sudo yarn
+    displayName: 'yarn install'

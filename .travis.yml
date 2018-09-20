@@ -1,4 +1,5 @@
 # Config adapted from:
+# test
 # https://www.electron.build/multi-platform-build#sample-travisyml-to-build-electron-app-for-macos-linux-and-windows
 sudo: true
 
@@ -25,6 +26,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
+            - pkg-config
             - g++-4.8
             - icnsutils
             - graphicsmagick
