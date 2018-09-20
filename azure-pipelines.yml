@@ -21,5 +21,6 @@ jobs:
       curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.9.4
     displayName: 'install yarn'
 
-  - script: |
-      sudo yarn
+  - bash: |
+      yarn install
+    displayName: 'yarn install'
