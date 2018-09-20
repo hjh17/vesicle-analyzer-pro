@@ -9,7 +9,7 @@ jobs:
   - task: NodeTool@0
     inputs:
       versionSpec: '10.8.0'
-  - task: Bash@3
+  - task: CmdLine@2
     inputs:
       script: add-apt-repository ppa:ubuntu-toolchain-r/test && apt-get update -y && apt-get upgrade -y
 
