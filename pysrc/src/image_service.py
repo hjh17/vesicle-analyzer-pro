@@ -2,7 +2,6 @@ import base64
 import functools
 import cv2
 import numpy as np
-import time
 
 
 @functools.lru_cache(maxsize=256)
@@ -58,14 +57,3 @@ def get_circled_image(img_path, binary_threshold=(25, 100), gaussian_kernel_size
             cv2.putText(circle_img, 'radius ' + str(r), (int(x), int(y) + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                         (255, 255, 255), 2)
     return circle_img, diameters
-
-
-if __name__ == '__main__':
-    t1 = time.time()
-
-    get_circled_image('/home/hjortur/workspace/vesicle_analyzer/hjohja.tif')
-    print(time.time() - t1)
-    t1 = time.time()
-
-    get_circled_image('/home/hjortur/workspace/vesicle_analyzer/hjohja.tif')
-    print(time.time() - t1)
