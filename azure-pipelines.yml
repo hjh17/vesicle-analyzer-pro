@@ -9,7 +9,7 @@ steps:
     versionSpec: '10.8.0'
   
 - script: |
-    sleep 3m
+    sleep 4m
     echo 1
     sudo add-apt-repository ppa:ubuntu-toolchain-r/test
     echo 2
