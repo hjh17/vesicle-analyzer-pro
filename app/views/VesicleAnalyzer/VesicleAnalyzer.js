@@ -49,49 +49,6 @@ class VesicleAnalyzer extends Component<Props> {
     };
   }
 
-  onClickProcess = filePath => {
-    this.setState({ loadingProcessed: true });
-    window.client
-      .invoke_promised('process_image', filePath)
-      .then(result => {
-        const res = JSON.parse(result);
-        this.setState({
-          processedImg: res.img_data,
-          loadingProcessed: false
-        });
-        return null;
-      })
-      .catch(error => {
-        this.setState({ loadingProcessed: false });
-        console.log('Caught error from client:', error);
-      });
-  };
-
-  onClickDetect = filePath => {
-    const {
-      selectedCondition,
-      selectedPosition,
-      selectedTime,
-      selectedParams
-    } = this.state;
-    this.setState({ loadingDetectedCircles: true });
-    callRPCPromised('get_detected_circles', filePath, selectedParams)
-      .then(res => {
-        this.setState({
-          detectedImg: res.img_data,
-          loadingDetectedCircles: false
-        });
-        this.updateDiameters(
-          selectedCondition,
-          selectedPosition,
-          selectedTime,
-          res.diameters
-        );
-        return null;
-      })
-      .catch(err => console.log(err));
-  };
-
   onClickLoadFiles = () => {
     remote.dialog.showOpenDialog(
       {
@@ -370,7 +327,6 @@ class VesicleAnalyzer extends Component<Props> {
           <ImageContainer
             changeParams={this.changeParams}
             currentlySelectedData={currentlySelectedData}
-            onClickDetect={this.onClickDetect}
             originalImg={originalImg}
             processedImg={processedImg}
             detectedImg={detectedImg}
