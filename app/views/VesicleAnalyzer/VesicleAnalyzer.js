@@ -258,6 +258,7 @@ class VesicleAnalyzer extends Component<Props> {
   };
 
   onClickTree = treeEntry => {
+    const { selectedParams } = this.state;
     this.setState({
       loadingProcessed: true,
       loadingDetectedCircles: true,
@@ -278,16 +279,30 @@ class VesicleAnalyzer extends Component<Props> {
         });
         return null;
       })
-      .then(() => {
-        this.onClickProcess(treeEntry.path);
-        return null;
-      })
-      .then(() => {
-        this.onClickDetect(treeEntry.path);
+      .catch(error => {
+        this.setState({ loadingOriginal: false });
+        console.log('Caught error from client:', error);
+      });
+
+    callRPCPromised('get_processed_image', treeEntry.path, selectedParams)
+      .then(res => {
+        this.setState({ processedImg: res.img_data, loadingProcessed: false });
         return null;
       })
       .catch(error => {
-        this.setState({ loadingOriginal: false });
+        this.setState({ loadingProcessed: false });
+        console.log('Caught error from client:', error);
+      });
+    callRPCPromised('get_detected_circles', treeEntry.path, selectedParams)
+      .then(res => {
+        this.setState({
+          detectedImg: res.img_data,
+          loadingDetectedCircles: false
+        });
+        return null;
+      })
+      .catch(error => {
+        this.setState({ loadingDetectedCircles: false });
         console.log('Caught error from client:', error);
       });
   };
@@ -355,7 +370,6 @@ class VesicleAnalyzer extends Component<Props> {
           <ImageContainer
             changeParams={this.changeParams}
             currentlySelectedData={currentlySelectedData}
-            onClickProcess={this.onClickProcess}
             onClickDetect={this.onClickDetect}
             originalImg={originalImg}
             processedImg={processedImg}
