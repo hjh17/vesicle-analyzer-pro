@@ -34,7 +34,7 @@ jobs:
       venv/bin/python setup.py develop
     workingDirectory: './pysrc'
   - script: |
-      yarn test-python
+      sudo yarn test-python
     
     
     
