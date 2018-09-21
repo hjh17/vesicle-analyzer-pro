@@ -8,6 +8,7 @@ class TestRadiusFinder(unittest.TestCase):
     def setUp(self):
         self.radius_finder = RadiusFinder()
         self.test_image_path = os.path.join(ROOT_DIR, 'test_img.tif')
+        print(self.test_image_path)
         self.params = {
             "minBinaryThreshold": 40,
             "maxBinaryThreshold": 100,
