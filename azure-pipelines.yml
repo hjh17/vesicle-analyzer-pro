@@ -33,5 +33,5 @@ jobs:
     workingDirectory: './pysrc'
   - script: |
       yarn test-python
-    workingDirectory: '../
+    workingDirectory: '../'
     
