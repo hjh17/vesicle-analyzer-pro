@@ -8,7 +8,8 @@ import time
 
 class TestImageService(unittest.TestCase):
     def setUp(self):
-        self.test_image_path = os.path.join(ROOT_DIR, '../test_img.tif')
+        self.test_image_path = os.path.join(ROOT_DIR, 'test_img.tif')
+        print(self.test_image_path)
 
 
     def test_get_image(self):
