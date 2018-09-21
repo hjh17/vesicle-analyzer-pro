@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-import json
 import zerorpc
 import gevent
 from src import image_service
@@ -9,10 +8,7 @@ from src import image_service
 class RadiusFinder(object):
 
     def get_original(self, img_path):
-
-        self.original = cv2.imread(img_path)
-        ans = dict(img_data=image_service.img_to_base64(self.original))
-        return json.dumps(ans)
+        return dict(img_data=image_service.img_to_base64(cv2.imread(img_path)))
 
     def get_processed_image(self, img_path, params):
         binary_threshold_min = params["minBinaryThreshold"]
@@ -43,31 +39,6 @@ class RadiusFinder(object):
         diameters = [d * radiusProportion for d in diameters]
         return dict(img_data=image_service.img_to_base64(detected_circles), diameters=diameters)
 
-    def find_circles(self, img_path, binary_threshold=(25, 100), gaussian_kernel_size=5, gaussian_blur=0, dp=2.4,
-                     minDist=40,
-                     minRadius=10, maxRadius=80):
-        self.img_path = img_path
-        self.img = cv2.imread(img_path)
-        self.original = self.img.copy()
-
-        self.processed_img = self._preprocess_image(binary_threshold, gaussian_kernel_size, gaussian_blur)
-        self.circles = cv2.HoughCircles(self.processed_img, cv2.HOUGH_GRADIENT, dp=dp, minDist=minDist,
-                                        minRadius=minRadius,
-                                        maxRadius=maxRadius)
-        if self.circles is None:
-            img_data = dict(detected_circles=image_service.img_to_base64(self.img),
-                            original=image_service.img_to_base64(self.original),
-                            processed=image_service.img_to_base64(self.processed_img))
-            ans = dict(diameters=[], total=0, img_data=img_data)
-            return json.dumps(ans)
-        diameters = self.circles[0, :, 2] * 2
-        self.imshow()
-        img_data = dict(detected_circles=image_service.img_to_base64(self.img),
-                        original=image_service.img_to_base64(self.original),
-                        processed=image_service.img_to_base64(self.processed_img))
-        ans = dict(diameters=diameters.tolist(), total=len(diameters), img_data=img_data)
-        return json.dumps(ans)
-
     @zerorpc.stream
     def calculate_all(self, paths, params):
         return self._image_generator(paths, params)
@@ -77,29 +48,27 @@ class RadiusFinder(object):
         binary_threshold_max = params["maxBinaryThreshold"]
         gaussian_blur = params["gaussianBlur"]
         dp = params["dp"]
-        minDist = params["centerDistance"]
-        minRadius = params["minRadius"]
-        maxRadius = params["maxRadius"]
-        radiusProportion = params["radiusProportion"]
+        min_dist = params["centerDistance"]
+        min_radius = params["minRadius"]
+        max_radius = params["maxRadius"]
+        radius_proportion = params["radiusProportion"]
 
         for path in paths:
             img = cv2.imread(path)
             processed_img = self._preprocess_image(path, (binary_threshold_min, binary_threshold_max), gaussian_blur)
-            ans = dict(img_data=image_service.img_to_base64(img),
-                       processed_img=image_service.img_to_base64(processed_img))
 
-            self.circles = cv2.HoughCircles(processed_img, cv2.HOUGH_GRADIENT, dp=dp, minDist=minDist,
-                                            minRadius=int(minRadius),
-                                            maxRadius=int(maxRadius))
+            circles = cv2.HoughCircles(processed_img, cv2.HOUGH_GRADIENT, dp=dp, minDist=min_dist,
+                                       minRadius=int(min_radius),
+                                       maxRadius=int(max_radius))
 
-            if self.circles is None:
+            if circles is None:
                 circle_img = img
                 diameters = []
             else:
-                diameters = self.circles[0, :, 2] * 2
+                diameters = circles[0, :, 2] * 2
                 diameters = diameters.tolist()
-                diameters = [d * radiusProportion for d in diameters]
-                circle_img = self.imshow(img)
+                diameters = [d * radius_proportion for d in diameters]
+                circle_img = self.put_circles_on_img(img, circles)
 
             gevent.sleep(0.0001)
             ans = dict(img_data=image_service.img_to_base64(img),
@@ -121,11 +90,11 @@ class RadiusFinder(object):
 
         return processed_img
 
-    def imshow(self, img):
+    def put_circles_on_img(self, img, circles):
         img_copy = img.copy()
-        if self.circles is not None:
+        if circles is not None:
             # convert the (x, y) coordinates and radius of the circles to integers
-            circles = np.round(self.circles[0, :]).astype("int")
+            circles = np.round(circles[0, :]).astype("int")
 
             # loop over the (x, y) coordinates and radius of the circles
             for idx, (x, y, r) in enumerate(circles):
