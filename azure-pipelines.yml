@@ -35,7 +35,6 @@ jobs:
     workingDirectory: './pysrc'
   - script: |
       yarn test-python
-    workingDirectory: $System.DefaultWorkingDirectory
     
     
     
