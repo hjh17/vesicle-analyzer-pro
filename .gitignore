@@ -55,6 +55,8 @@ npm-debug.log.*
 build
 pydist
 venv
+pysrc/radius_finder.egg-info/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
