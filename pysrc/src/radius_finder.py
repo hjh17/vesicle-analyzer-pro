@@ -1,28 +1,17 @@
 import cv2
 import numpy as np
 import json
-import base64
 import zerorpc
 import gevent
-import image_service
+from src import image_service
 
 
 class RadiusFinder(object):
 
-    def __init__(self):
-        self.cache = dict()
-
     def get_original(self, img_path):
-        if img_path in self.cache:
-            if 'original' in self.cache[img_path]:
-                return json.dumps(self.cache[img_path]['original'])
-
-        else:
-            self.cache[img_path] = dict()
 
         self.original = cv2.imread(img_path)
-        ans = dict(img_data=self.img_to_base64(self.original))
-        self.cache[img_path].update({'original': ans, 'original_img': self.original})
+        ans = dict(img_data=image_service.img_to_base64(self.original))
         return json.dumps(ans)
 
     def get_processed_image(self, img_path, params):
@@ -33,7 +22,7 @@ class RadiusFinder(object):
         processed_img = image_service.get_processed_image(img_path,
                                                           binary_threshold=(binary_threshold_min, binary_threshold_max),
                                                           gaussian_blur=gaussian_blur)
-        return dict(img_data=self.img_to_base64(processed_img))
+        return dict(img_data=image_service.img_to_base64(processed_img))
 
     def get_detected_circles(self, img_path, params):
         binary_threshold_min = params["minBinaryThreshold"]
@@ -52,7 +41,7 @@ class RadiusFinder(object):
                                                                       int(minRadius), int(maxRadius),
                                                                       radiusProportion)
         diameters = [d * radiusProportion for d in diameters]
-        return dict(img_data=self.img_to_base64(detected_circles), diameters=diameters)
+        return dict(img_data=image_service.img_to_base64(detected_circles), diameters=diameters)
 
     def find_circles(self, img_path, binary_threshold=(25, 100), gaussian_kernel_size=5, gaussian_blur=0, dp=2.4,
                      minDist=40,
@@ -66,14 +55,16 @@ class RadiusFinder(object):
                                         minRadius=minRadius,
                                         maxRadius=maxRadius)
         if self.circles is None:
-            img_data = dict(detected_circles=self.img_to_base64(self.img), original=self.img_to_base64(self.original),
-                            processed=self.img_to_base64(self.processed_img))
+            img_data = dict(detected_circles=image_service.img_to_base64(self.img),
+                            original=image_service.img_to_base64(self.original),
+                            processed=image_service.img_to_base64(self.processed_img))
             ans = dict(diameters=[], total=0, img_data=img_data)
             return json.dumps(ans)
         diameters = self.circles[0, :, 2] * 2
         self.imshow()
-        img_data = dict(detected_circles=self.img_to_base64(self.img), original=self.img_to_base64(self.original),
-                        processed=self.img_to_base64(self.processed_img))
+        img_data = dict(detected_circles=image_service.img_to_base64(self.img),
+                        original=image_service.img_to_base64(self.original),
+                        processed=image_service.img_to_base64(self.processed_img))
         ans = dict(diameters=diameters.tolist(), total=len(diameters), img_data=img_data)
         return json.dumps(ans)
 
@@ -94,7 +85,8 @@ class RadiusFinder(object):
         for path in paths:
             img = cv2.imread(path)
             processed_img = self._preprocess_image(path, (binary_threshold_min, binary_threshold_max), gaussian_blur)
-            ans = dict(img_data=self.img_to_base64(img), processed_img=self.img_to_base64(processed_img))
+            ans = dict(img_data=image_service.img_to_base64(img),
+                       processed_img=image_service.img_to_base64(processed_img))
 
             self.circles = cv2.HoughCircles(processed_img, cv2.HOUGH_GRADIENT, dp=dp, minDist=minDist,
                                             minRadius=int(minRadius),
@@ -110,8 +102,9 @@ class RadiusFinder(object):
                 circle_img = self.imshow(img)
 
             gevent.sleep(0.0001)
-            ans = dict(img_data=self.img_to_base64(img), processed_img=self.img_to_base64(processed_img),
-                       cirlces=self.img_to_base64(circle_img), diameters=diameters, path=path)
+            ans = dict(img_data=image_service.img_to_base64(img),
+                       processed_img=image_service.img_to_base64(processed_img),
+                       cirlces=image_service.img_to_base64(circle_img), diameters=diameters, path=path)
             yield ans
 
     def _preprocess_image(self, img_path, binary_threshold=(25, 100), gaussian_blur=0):
@@ -144,11 +137,3 @@ class RadiusFinder(object):
                 cv2.putText(img_copy, 'radius ' + str(r), (int(x), int(y) + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                             (255, 255, 255), 2)
         return img_copy
-        # show the output image
-        # cv2.imshow("output", np.hstack([self.original, self.img]))
-        # cv2.waitKey(0)
-
-    def img_to_base64(self, img):
-        retval, buffer = cv2.imencode('.jpg', img)
-        jpg_as_text = base64.b64encode(buffer)
-        return jpg_as_text.decode()
