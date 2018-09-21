@@ -228,8 +228,7 @@ class VesicleAnalyzer extends Component<Props> {
     });
     window.client
       .invoke_promised('get_original', treeEntry.path)
-      .then(result => {
-        const res = JSON.parse(result);
+      .then(res => {
         this.setState({
           originalImg: res.img_data,
           loadingOriginal: false
