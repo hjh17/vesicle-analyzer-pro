@@ -1,14 +1,6 @@
-import os;
-
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
-import sys;
-
-sys.path.append('./src')
-
-from radius_finder import RadiusFinder
+import sys
+from src.radius_finder import RadiusFinder
 import zerorpc
-
-OPEN_PORT = str(4242)
 
 
 class Server:
@@ -19,7 +11,9 @@ class Server:
         self.objects.append(obj)
         for method in dir(obj):
             if callable(getattr(obj, method)) and not method.startswith("__"):
-                if dir(self).__contains__(method): print("you have register method:" + method);sys.exit(0);
+                if dir(self).__contains__(method):
+                    print("you have register method:" + method)
+                    sys.exit(0)
                 setattr(self, method, getattr(obj, method))
 
 
