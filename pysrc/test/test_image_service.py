@@ -8,13 +8,15 @@ import time
 
 class TestImageService(unittest.TestCase):
     def setUp(self):
+        print("---")
         self.test_image_path = os.path.join(ROOT_DIR, 'test_img.tif')
         print(self.test_image_path)
-
+        print("---")
 
     def test_get_image(self):
         t1 = time.time()
         img = image_service.get_image(self.test_image_path)
+        print(img, "LOLL")
         d1 = time.time() - t1
         t1 = time.time()
         img = image_service.get_image(self.test_image_path)
@@ -50,7 +52,7 @@ class TestImageService(unittest.TestCase):
         img, diameters = image_service.get_circled_image(self.test_image_path)
         d2 = time.time() - t1
         self.assertEqual(img.shape, (1024, 1024, 3))
-        self.assertEqual(len(diameters), 89)
+        self.assertEqual(len(diameters), 23)
         # Assert memoize
         self.assertTrue(d2 < d1)
 

@@ -36,7 +36,7 @@ class TestRadiusFinder(unittest.TestCase):
         self.assertIn('diameters', response)
         self.assertIsInstance(response['img_data'], str)
         self.assertIsInstance(response['diameters'], list)
-        self.assertEqual(len(response['diameters']), 83)
+        self.assertEqual(len(response['diameters']), 20)
 
 
 if __name__ == "__main__":
