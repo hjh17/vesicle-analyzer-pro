@@ -51,6 +51,9 @@ jobs:
     inputs:
       versionSpec: '10.8.0'
       displayName: 'Install npm'
+  - task: Xcode@5
+    inputs:
+      xcodeVersion: 9
   - task: CmdLine@2
     inputs:
       script: |
