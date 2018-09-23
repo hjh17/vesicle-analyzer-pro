@@ -74,6 +74,8 @@ jobs:
   - script: |
       sudo yarn test-python
   - script: |
+      brew install pkg-config
+      brew install zmq
       sudo pip install pyinstaller
       sudo yarn package
     
