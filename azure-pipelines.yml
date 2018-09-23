@@ -74,5 +74,6 @@ jobs:
   - script: |
       sudo yarn test-python
   - script: |
+      sudo pip install pyinstaller
       sudo yarn package
     
