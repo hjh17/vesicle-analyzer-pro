@@ -42,5 +42,48 @@ jobs:
   - script: |
       sudo yarn test-python
     
+name: 'Build OSX'
+trigger:
+- master
+- release/*
+- develop
+- feature/
+jobs:
+- job: Build
+  pool:
+    vmImage: 'macOS-10.13'
+
+  steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '10.8.0'
+      displayName: 'Install npm'
+  - task: CmdLine@2
+    inputs:
+      script: |
+         brew install pkg-config
+   #     sleep 4m
+   #     sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+   #     sudo apt-get install -y autoconf build-essential g++-4.8 libtool pkg-config build-essential autoconf automake libzmq-dev
+  #      export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+  #    displayName: 'Install build tools'
+  - script: |
+      sudo npm install yarn -g
+      #sudo yarn
+    displayName: 'yarn install'
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.5'
+      displayName: 'Install python3.5'
+  - script: |
+      sudo apt-get -y install python-opencv
+      sudo pip install virtualenv 
+      virtualenv venv -p python3
+      venv/bin/pip install -r requirements.txt
+      venv/bin/python setup.py develop
+    workingDirectory: './pysrc'
+  - script: |
+      sudo yarn test-python
+    
     
     
