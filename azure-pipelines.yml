@@ -1,6 +1,6 @@
 # Build NodeJS Express app using Azure Pipelines
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript?view=vsts
-name: 'Build Linux'
+name: 'Build Linux and OSX'
 trigger:
 - master
 - release/*
@@ -41,14 +41,7 @@ jobs:
     workingDirectory: './pysrc'
   - script: |
       sudo yarn test-python
-    
-name: 'Build OSX'
-trigger:
-- master
-- release/*
-- develop
-- feature/
-jobs:
+ 
 - job: Build
   pool:
     vmImage: 'macOS-10.13'
