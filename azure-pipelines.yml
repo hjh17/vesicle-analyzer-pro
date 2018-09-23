@@ -1,18 +1,52 @@
-
+# Build NodeJS Express app using Azure Pipelines
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript?view=vsts
+name: 'Build Linux and OSX'
+trigger:
+- master
+- release/*
+- develop
+- feature/
 jobs:
-
-- job: BuildOSX
+- job: BuildLinux
   pool:
-    vmImage: 'macOS 10.13'
+    vmImage: 'Ubuntu 16.04'
 
   steps:
-  - task: Xcode@5
+  - task: NodeTool@0
     inputs:
-      scheme: ''
-      sdk: 'iphoneos'
-      configuration: 'Release'
-      xcodeVersion: 'default' # Options: 8, 9, default, specifyPath
+      versionSpec: '10.8.0'
+      displayName: 'Install npm'
+  #- task: CmdLine@2
+   # inputs:
+   #   script: |
+   #     sleep 4m
+   #     sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+   #     sudo apt-get install -y autoconf build-essential g++-4.8 libtool pkg-config build-essential autoconf automake libzmq-dev
+  #      export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+  #    displayName: 'Install build tools'
+  - script: |
+      sudo npm install yarn -g
+      #sudo yarn
+    displayName: 'yarn install'
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.5'
+      displayName: 'Install python3.5'
+  - script: |
+      sudo apt-get -y install python-opencv
+      sudo pip install virtualenv 
+      virtualenv venv -p python3
+      venv/bin/pip install -r requirements.txt
+      venv/bin/python setup.py develop
+    workingDirectory: './pysrc'
+  - script: |
+      sudo yarn test-python
+ 
+- job: BuildOSX
+  pool:
+    vmImage: 'macOS-10.13'
 
+  steps:
   - task: NodeTool@0
     inputs:
       versionSpec: '10.8.0'
@@ -21,7 +55,7 @@ jobs:
     inputs:
       script: |
          # xcode-select --install
-         brew install pkg-config
+         sudo brew install pkg-config
    #     sleep 4m
    #     sudo add-apt-repository ppa:ubuntu-toolchain-r/test
    #     sudo apt-get install -y autoconf build-essential g++-4.8 libtool pkg-config build-essential autoconf automake libzmq-dev
@@ -44,6 +78,4 @@ jobs:
     workingDirectory: './pysrc'
   - script: |
       sudo yarn test-python
-    
-    
     
