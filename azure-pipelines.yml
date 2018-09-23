@@ -7,7 +7,7 @@ trigger:
 - develop
 - feature/
 jobs:
-- job: Build
+- job: BuildLinux
   pool:
     vmImage: 'Ubuntu 16.04'
 
@@ -42,7 +42,7 @@ jobs:
   - script: |
       sudo yarn test-python
  
-- job: Build
+- job: BuildOSX
   pool:
     vmImage: 'macOS-10.13'
 
