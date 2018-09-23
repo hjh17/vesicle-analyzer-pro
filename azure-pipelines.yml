@@ -53,7 +53,7 @@ jobs:
       displayName: 'Install npm'
   - task: Xcode@5
     inputs:
-      xcWorkspacePath: 'projectname.xcworkspace'
+      xcWorkspacePath: 'vesicle-analyzer-pro.xcworkspace'
   - task: CmdLine@2
     inputs:
       script: |
