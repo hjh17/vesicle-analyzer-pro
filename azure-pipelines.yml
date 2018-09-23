@@ -52,6 +52,13 @@ jobs:
       versionSpec: '10.8.0'
       displayName: 'Install npm'
   - task: Xcode@5
+    inputs:
+      sdk: '$(sdk)'
+      scheme: '$(scheme)'
+      configuration: '$(configuration)'
+      xcodeVersion: 'default' # Options: 8, 9, 10, default, specifyPath
+      exportPath: '$(agent.buildDirectory)/output/$(sdk)/$(configuration)'
+      packageApp: false
   - task: CmdLine@2
     inputs:
       script: |
