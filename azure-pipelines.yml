@@ -1,5 +1,6 @@
 # Build NodeJS Express app using Azure Pipelines
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript?view=vsts
+name: 'Build Linux'
 jobs:
 - job: Build
   pool:
