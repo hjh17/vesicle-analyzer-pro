@@ -51,12 +51,10 @@ jobs:
     inputs:
       versionSpec: '10.8.0'
       displayName: 'Install npm'
-  - task: Xcode@5
-    inputs:
-      xcWorkspacePath: 'vesicle-analyzer-pro.xcworkspace'
   - task: CmdLine@2
     inputs:
       script: |
+         xcode-select --install
          brew install pkg-config
    #     sleep 4m
    #     sudo add-apt-repository ppa:ubuntu-toolchain-r/test
