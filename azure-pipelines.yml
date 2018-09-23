@@ -75,9 +75,20 @@ jobs:
     workingDirectory: './pysrc'
   - script: |
       sudo yarn test-python
-  #- script: |
-      #brew install pkg-config
-      #brew install zmq
-      #sudo pip install pyinstaller
-      #sudo yarn package
+    
+- job: BuildWin
+  pool:
+    vmImage: 'vs2017-win2016'
+
+  steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '10.8.0'
+      displayName: 'Install npm'
+  - task: CmdLine@2
+    inputs:
+      script: |
+         npm install yarn -g
+         yarn
+      displayName: 'yarn'
     
