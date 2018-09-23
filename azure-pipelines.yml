@@ -60,7 +60,6 @@ jobs:
   - script: |
       sudo npm install yarn -g
       sudo yarn
-      sudo yarn package
     displayName: 'yarn install'
   - task: UsePythonVersion@0
     inputs:
@@ -73,4 +72,6 @@ jobs:
     workingDirectory: './pysrc'
   - script: |
       sudo yarn test-python
+  - script: |
+      sudo yarn package
     
