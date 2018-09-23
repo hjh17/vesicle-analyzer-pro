@@ -54,8 +54,9 @@ jobs:
   - task: CmdLine@2
     inputs:
       script: |
-         xcode-select --install
+         # xcode-select --install
          brew install pkg-config
+         sudo npm i zmq
    #     sleep 4m
    #     sudo add-apt-repository ppa:ubuntu-toolchain-r/test
    #     sudo apt-get install -y autoconf build-essential g++-4.8 libtool pkg-config build-essential autoconf automake libzmq-dev
