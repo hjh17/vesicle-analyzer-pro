@@ -85,10 +85,16 @@ jobs:
     inputs:
       versionSpec: '10.8.0'
       displayName: 'Install npm'
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.5'
+      displayName: 'Install python3.5'
   - task: CmdLine@2
     inputs:
       script: |
+         pip install pyinstaller
          npm install yarn -g
          yarn
+         yarn package
       displayName: 'yarn'
     
