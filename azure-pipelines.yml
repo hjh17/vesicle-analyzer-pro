@@ -57,7 +57,9 @@ jobs:
          # xcode-select --install
          brew install pkg-config
          brew install zmq
-         export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+         pkg-config --cflags libzmq
+         export PKG_CONFIG_PATH=/usr/local/Cellar/zeromq/4.1.4/lib/pkgconfig/
+         #export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
       displayName: 'Install build tools'
   - script: |
       sudo npm install yarn -g
