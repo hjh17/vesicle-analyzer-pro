@@ -3,10 +3,15 @@ jobs:
 
 - job: BuildOSX
   pool:
-    vmImage: 'macOS-10.13'
+    vmImage: 'macOS 10.13'
 
   steps:
   - task: Xcode@5
+    inputs:
+      scheme: ''
+      sdk: 'iphoneos'
+      configuration: 'Release'
+      xcodeVersion: 'default' # Options: 8, 9, default, specifyPath
 
   - task: NodeTool@0
     inputs:
