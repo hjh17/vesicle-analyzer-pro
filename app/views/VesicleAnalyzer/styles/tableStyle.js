@@ -1,10 +1,11 @@
 const tableStyle = theme =>  ({
   tableContainer: {
-    width: '300px',
-    height: '300px',
+    width: '250px',
+    height: '250px',
     border: "thick solid black",
     position: "absolute",
-    top: "400px",
+    top: "450px",
+    left: "150px",
     backgroundColor: "white",
     overflowY: 'scroll'
   },
