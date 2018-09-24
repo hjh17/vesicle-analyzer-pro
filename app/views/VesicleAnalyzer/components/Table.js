@@ -26,7 +26,7 @@ class DiameterTable extends Component<Props> {
             {data.map((diameter, idx) => (
               <TableRow key={idx}>
                 <TableCell>{idx+1}</TableCell>
-                <TableCell numeric>{diameter/scale}</TableCell>
+                <TableCell numeric>{(diameter/scale).toFixed(2)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
