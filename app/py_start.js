@@ -56,7 +56,7 @@ console.log("ENV: ", process.env.NODE_ENV)
     console.log(path.join(RUNNING_PYTHON_DIR, 'pydist', 'app.asar'))
     // TODO: have to make yarn start and yarn package point to the same relative path here
     const pythonExecutableFileName = process.platform === "win32" ? 'start.exe' : 'start'
-    pyProc = child_process.execFile(path.join(RUNNING_PYTHON_DIR, 'start.exe'), [pyPort], (error, stdout, stderr) => {
+    pyProc = child_process.execFile(path.join(RUNNING_PYTHON_DIR, pythonExecutableFileName), [pyPort], (error, stdout, stderr) => {
       if (error) {
         throw error;
       }
