@@ -63,7 +63,7 @@ jobs:
       sudo yarn
       sudo yarn package
       sudo yarn build
-      sudo yarn test-e2e
+      #sudo yarn test
     displayName: 'yarn install'
   - task: UsePythonVersion@0
     inputs:
@@ -94,6 +94,7 @@ jobs:
   - task: CmdLine@2
     inputs:
       script: |
+         #npm --add-python-to-path='true' --debug install --global windows-build-tools
          pip install pyinstaller
          npm install yarn -g
          yarn
