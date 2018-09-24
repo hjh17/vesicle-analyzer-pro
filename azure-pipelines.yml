@@ -26,7 +26,8 @@ jobs:
           displayName: 'Install build tools'
       - script: |
           sudo npm install yarn -g
-          #sudo yarn
+          sudo yarn
+          yarn test
         displayName: 'yarn install'
       - task: UsePythonVersion@0
         inputs:
@@ -63,7 +64,7 @@ jobs:
           sudo yarn
           sudo yarn package
           sudo yarn build
-          #sudo yarn test
+          sudo yarn test
         displayName: 'yarn install'
       - task: UsePythonVersion@0
         inputs:
@@ -99,4 +100,5 @@ jobs:
             npm install yarn -g
             yarn
             yarn package
+            yarn test
           displayName: 'yarn'
