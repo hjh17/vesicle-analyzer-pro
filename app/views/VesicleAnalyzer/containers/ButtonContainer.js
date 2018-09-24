@@ -68,7 +68,6 @@ class ButtonContainer extends Component<Props> {
           required
           id="required"
           label="pixels/microns"
-          defaultValue={4.158}
           type="number"
           value={scale}
           onChange={changeScale}
