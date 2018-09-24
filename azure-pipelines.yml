@@ -2,10 +2,12 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript?view=vsts
 name: 'Build Linux and OSX'
 trigger:
-  - master
-  - release/*
-  - develop
-  - feature/*
+  branches:
+    include:
+      - master
+      - release/*
+      - develop
+      - feature/*
 jobs:
   - job: BuildLinux
     pool:
