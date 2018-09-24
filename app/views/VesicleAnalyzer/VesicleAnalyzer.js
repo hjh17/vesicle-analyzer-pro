@@ -13,6 +13,7 @@ import vesicleAnalyzerStyle from './styles/vesicleAnalyzerStyle';
 import routes from '../../constants/routes.json';
 
 import ImageContainer from './containers/ImageContainer';
+import ButtonContainer from './containers/ButtonContainer';
 import TreeView from './components/TreeView';
 import LoadingDialog from './components/LoadingDialog';
 import Table from './components/Table';
@@ -317,12 +318,11 @@ class VesicleAnalyzer extends Component<Props> {
     const loading = [loadingOriginal, loadingProcessed, loadingDetectedCircles];
 
     return (
-      <div data-tid="container">
+      <div className={classes.container}>
         <div className={classes.treeViewContainer}>
           <TreeView data={treeObject} onClickTree={this.onClickTree} />
         </div>
 
-        <div className={classes.container}>
           <ImageContainer
             changeParams={this.changeParams}
             currentlySelectedData={currentlySelectedData}
@@ -331,55 +331,17 @@ class VesicleAnalyzer extends Component<Props> {
             detectedImg={detectedImg}
             loading={loading}
           />
+          <ButtonContainer
+            onClickLoadFiles={this.onClickLoadFiles}
+            onClickCalculateAll={this.onClickCalculateAll}
+            saveExcelFile={this.saveExcelFile}
+            changeScale={this.changeScale}
+            scale={scale}
+          />
 
           {currentlySelectedData && (
             <Table data={currentlySelectedData.diameters} scale={scale} />
           )}
-
-          <Link to={routes.FrontPage}>
-            <Button
-              className={classes.button}
-              variant="contained"
-              color="primary"
-            >
-              {' '}
-              Back{' '}
-            </Button>
-          </Link>
-          <Button
-            className={classes.button}
-            variant="contained"
-            color="primary"
-            onClick={this.onClickLoadFiles}
-          >
-            Load files
-          </Button>
-          <Button
-            className={classes.button}
-            variant="contained"
-            color="primary"
-            onClick={this.onClickCalculateAll}
-          >
-            Calculate All
-          </Button>
-          <Button
-            className={classes.button}
-            variant="contained"
-            color="primary"
-            onClick={this.saveExcelFile}
-          >
-            Save to excel
-          </Button>
-          <TextField
-            required
-            id="required"
-            label="pixels/microns"
-            defaultValue={4.158}
-            type="number"
-            value={scale}
-            onChange={this.changeScale}
-          />
-        </div>
         <LinearProgress
           color="secondary"
           variant="determinate"
