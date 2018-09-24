@@ -32,7 +32,7 @@ class ImageContainer extends Component<Props> {
     params
   ) => (
     <div className={classes.imageBox}>
-      <h1>Original</h1>
+      <h1>{title}</h1>
       <div className={classes.image}>
         <Image imgData={imageData} isLoading={isLoading} />
       </div>
