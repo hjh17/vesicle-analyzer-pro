@@ -5,7 +5,7 @@ trigger:
   - master
   - release/*
   - develop
-  - feature/
+  - feature/*
 jobs:
   - job: BuildLinux
     pool:
