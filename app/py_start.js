@@ -2,10 +2,12 @@ import zerorpc from 'zerorpc';
 
 import { dialog } from 'electron';
 
+
 const child_process = require('child_process');
 const path = require('path');
 const app = require('electron').app;
 const tcpPortUsed = require('tcp-port-used');
+const kill = require('tree-kill');
 
 
 const PYTHON_DIR = path.join(__dirname, '../pysrc/start.py');
@@ -46,14 +48,15 @@ console.log("ENV: ", process.env.NODE_ENV)
   if (process.env.NODE_ENV === 'development') {
     console.info(`PythonDevelopLocation:${PYTHON_DIR}`);
     console.log("Development mode")
-    pyProc = child_process.spawn('python', [PYTHON_DIR,'4242'],{
+    pyProc = child_process.spawn('python', [PYTHON_DIR,pyPort],{
       "stdio": ['ignore', process.stdout, process.stderr]
     } );
   } else {
     console.info(`PythonStartLocation:${RUNNING_PYTHON_DIR}`);
-    console.log(path.join(RUNNING_PYTHON_DIR, 'pydist', 'start'))
+    console.log(path.join(RUNNING_PYTHON_DIR, 'pydist', 'app.asar'))
     // TODO: have to make yarn start and yarn package point to the same relative path here
-    pyProc = child_process.execFile(path.join(RUNNING_PYTHON_DIR, 'start'), (error, stdout, stderr) => {
+    const pythonExecutableFileName = process.platform === "win32" ? 'start.exe' : 'start'
+    pyProc = child_process.execFile(path.join(RUNNING_PYTHON_DIR, 'start.exe'), [pyPort], (error, stdout, stderr) => {
       if (error) {
         throw error;
       }
@@ -66,7 +69,13 @@ console.log("ENV: ", process.env.NODE_ENV)
 };
 
 const exitPyProc = () => {
-  if (pyProc != null)pyProc.kill();
+  if (pyProc != null) {
+    if(process.platform === "win32"){
+      kill(pyProc.pid)
+  }else{
+    pyProc.kill();  
+  }
+  }
   pyProc = null;
 };
 

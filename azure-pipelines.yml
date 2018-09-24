@@ -1,7 +1,13 @@
 # Build NodeJS Express app using Azure Pipelines
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript?view=vsts
+name: 'Build Linux and OSX'
+trigger:
+- master
+- release/*
+- develop
+- feature/
 jobs:
-- job: Build
+- job: BuildLinux
   pool:
     vmImage: 'Ubuntu 16.04'
 
@@ -28,13 +34,70 @@ jobs:
       displayName: 'Install python3.5'
   - script: |
       sudo apt-get -y install python-opencv
-      sudo pip install virtualenv 
+      sudo pip install virtualenv
       virtualenv venv -p python3
       venv/bin/pip install -r requirements.txt
       venv/bin/python setup.py develop
     workingDirectory: './pysrc'
   - script: |
       sudo yarn test-python
-    
-    
-    
+
+- job: BuildOSX
+  pool:
+    vmImage: 'macOS-10.13'
+
+  steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '10.8.0'
+      displayName: 'Install npm'
+  - task: CmdLine@2
+    inputs:
+      script: |
+         brew install pkg-config
+         brew install zmq
+      displayName: 'Install build tools'
+  - script: |
+      sudo npm install yarn -g
+      sudo pip install pyinstaller
+      sudo yarn
+      sudo yarn package
+      sudo yarn build
+      #sudo yarn test
+    displayName: 'yarn install'
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.5'
+      displayName: 'Install python3.5'
+  - script: |
+      sudo pip install virtualenv
+      virtualenv venv -p python3
+      venv/bin/pip install -r requirements.txt
+      venv/bin/python setup.py develop
+    workingDirectory: './pysrc'
+  - script: |
+      sudo yarn test-python
+
+- job: BuildWin
+  pool:
+    vmImage: 'vs2017-win2016'
+
+  steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '10.8.0'
+      displayName: 'Install npm'
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.5'
+      displayName: 'Install python3.5'
+  - task: CmdLine@2
+    inputs:
+      script: |
+         #npm --add-python-to-path='true' --debug install --global windows-build-tools
+         pip install pyinstaller
+         npm install yarn -g
+         yarn
+         yarn package
+      displayName: 'yarn'
+

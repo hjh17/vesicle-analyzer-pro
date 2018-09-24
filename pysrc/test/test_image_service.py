@@ -51,6 +51,7 @@ class TestImageService(unittest.TestCase):
         d2 = time.time() - t1
         self.assertEqual(img.shape, (1024, 1024, 3))
         self.assertEqual(len(diameters), 89)
+        self.assertEqual(len(diameters), 23)
         # Assert memoize
         self.assertTrue(d2 < d1)
 

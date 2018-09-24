@@ -28,4 +28,4 @@ def main(port):
 
 
 if __name__ == "__main__":
-    main(4242)
+    main(sys.argv[1])
