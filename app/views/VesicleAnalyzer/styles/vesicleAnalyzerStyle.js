@@ -2,16 +2,8 @@ import { second } from "../../../variables/colors"
 
 const vesicleAnalyzerStyle = {
   container: {
-    display: 'inline-block',
-    top: '10%',
-    left: '10px',
-    textAlign: 'center',
-    h2: {
-      fontSize: '5rem'
-    },
-    a: {
-      fontSize: '1.4rem'
-    }
+    display: 'grid',
+    gridTemplateColumns: '0.6fr 4fr 0.5fr'
   },
   button: {
     marginTop: '30px',
