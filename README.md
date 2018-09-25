@@ -4,8 +4,6 @@
 
 </div> 
 
-asdfjjj
-
 `sudo su`
 `yarn package-win`
 `chown -R hjortur release/`
