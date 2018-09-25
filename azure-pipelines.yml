@@ -27,6 +27,7 @@ jobs:
       - script: |
           sudo npm install yarn -g
           sudo yarn
+          sudo yarn build
           sudo yarn test
         displayName: 'yarn install'
       - task: UsePythonVersion@0
@@ -42,6 +43,7 @@ jobs:
         workingDirectory: './pysrc'
       - script: |
           sudo yarn test-python
+          sudo yarn package
 
   - job: BuildOSX
     pool:
@@ -92,13 +94,14 @@ jobs:
         inputs:
           versionSpec: '3.5'
           displayName: 'Install python3.5'
-      - task: CmdLine@2
+      - task: PowerShell@2
         inputs:
           script: |
             #npm --add-python-to-path='true' --debug install --global windows-build-tools
             pip install pyinstaller
             npm install yarn -g
             yarn
+            yarn build
             yarn package
             yarn test
           displayName: 'yarn'
