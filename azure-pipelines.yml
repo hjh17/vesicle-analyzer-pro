@@ -38,8 +38,8 @@ jobs:
           sudo apt-get -y install python-opencv
           sudo pip install virtualenv
           virtualenv venv -p python3
-          venv/bin/pip install -r requirements.txt
-          venv/bin/python setup.py develop
+          sudo venv/bin/pip install -r requirements.txt
+          sudo venv/bin/python setup.py develop
         workingDirectory: './pysrc'
       - script: |
           sudo yarn test-python
