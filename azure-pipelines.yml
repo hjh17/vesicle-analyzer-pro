@@ -22,11 +22,10 @@ jobs:
           script: |
             brew update
             brew install pkg-config
-            #brew install zeromq
-            brew uninstall zeromq
-            brew install zeromq405
+            brew install zmq
           displayName: 'Install build tools'
       - script: |
+          brew install llvm
           gcc --version
           sudo npm install yarn -g
           sudo pip install -r pysrc/requirments.txt
