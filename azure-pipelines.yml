@@ -2,40 +2,7 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript?view=vsts
 name: 'Build Linux and OSX'
 jobs:
-  - job: BuildLinux
-    pool:
-      vmImage: 'Ubuntu 16.04'
 
-    steps:
-      - task: NodeTool@0
-        inputs:
-          versionSpec: '10.8.0'
-          displayName: 'Install npm'
-      - task: CmdLine@2
-        inputs:
-          script: |
-            #sleep 4m
-            sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-            sudo apt-get install -y autoconf build-essential g++-4.8 libtool pkg-config build-essential autoconf automake libzmq-dev
-            export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
-          displayName: 'Install build tools'
-      - script: |
-          sudo npm install yarn -g
-          #sudo yarn
-        displayName: 'yarn install'
-      - task: UsePythonVersion@0
-        inputs:
-          versionSpec: '3.5'
-          displayName: 'Install python3.5'
-      - script: |
-          sudo apt-get -y install python-opencv
-          sudo pip install virtualenv
-          virtualenv venv -p python3
-          venv/bin/pip install -r requirements.txt
-          venv/bin/python setup.py develop
-        workingDirectory: './pysrc'
-      - script: |
-          sudo yarn test-python
 
   - job: BuildOSX
     pool:
@@ -55,15 +22,16 @@ jobs:
       - script: |
           sudo npm install yarn -g
           sudo pip install pyinstaller
+          sudo npm install -g node-gyp
           sudo yarn
           sudo yarn package
-          sudo yarn build
+          #sudo yarn build
           #sudo yarn test
         displayName: 'yarn install'
       - task: PublishPipelineArtifact@0
         inputs:
           artifactName: 'artifactName'
-          targetPath: 'release/ElectronReact-1.0.0.dmg'
+          targetPath: 'release/mac/ElectronReact.app'
       - task: UsePythonVersion@0
         inputs:
           versionSpec: '3.5'
