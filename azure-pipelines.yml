@@ -22,7 +22,7 @@ jobs:
           script: |
             brew update
             brew install pkg-config
-            brew install zmq
+            #brew install zmq
           displayName: 'Install build tools'
       - script: |
           brew install llvm
