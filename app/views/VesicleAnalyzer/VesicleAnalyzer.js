@@ -70,9 +70,10 @@ class VesicleAnalyzer extends Component<Props> {
           radiusProportion: 1
         };
         fileNames.forEach((file, idx) => {
-          const condition = parseInt(file.match(/condition(\d*)/)[1], 10);
-          const position = parseInt(file.match(/position(\d*)/)[1], 10);
-          const time = parseInt(file.match(/time(\d*)/)[1], 10);
+          console.log(file)
+          const condition = parseInt(file.match(/c(\d*)/)[1], 10);
+          const position = parseInt(file.match(/p(\d*)/)[1], 10);
+          const time = parseInt(file.match(/t(\d*)/)[1], 10);
           const hasCondition =
             treeObject.filter(entry => entry.name === `condition ${condition}`)
               .length > 0;
