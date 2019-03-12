@@ -22,7 +22,9 @@ jobs:
           script: |
             brew update
             brew install pkg-config
-            brew install zeromq
+            #brew install zeromq
+            brew uninstall zeromq
+            brew install zeromq405
           displayName: 'Install build tools'
       - script: |
           gcc --version
