@@ -22,12 +22,14 @@ jobs:
           script: |
             brew update
             brew install pkg-config
-            #brew install zmq
+            brew install zmq
+            export PKG_CONFIG_PATH=/usr/local/Cellar/zeromq/4.0.4/lib/pkgconfig/
           displayName: 'Install build tools'
       - script: |
           brew install llvm
           gcc --version
           sudo npm install yarn -g
+          sudo npm install zmq
           sudo pip install -r pysrc/requirments.txt
           sudo pip install ./pysrc
           sudo yarn
