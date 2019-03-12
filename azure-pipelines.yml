@@ -27,6 +27,7 @@ jobs:
       - script: |
           sudo npm install yarn -g
           sudo pip install -r pysrc/requirments.txt
+          sudo pip install ./pysrc
           sudo yarn
           sudo yarn package
           #sudo yarn build
