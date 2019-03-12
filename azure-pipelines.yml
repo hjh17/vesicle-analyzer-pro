@@ -60,6 +60,10 @@ jobs:
           sudo yarn build
           #sudo yarn test
         displayName: 'yarn install'
+      - task: PublishPipelineArtifact@0
+        inputs:
+          artifactName: 'artifactName'
+          targetPath: 'release/ElectronReact-1.0.0.dmg'
       - task: UsePythonVersion@0
         inputs:
           versionSpec: '3.5'
@@ -72,6 +76,7 @@ jobs:
         workingDirectory: './pysrc'
       - script: |
           sudo yarn test-python
+
 
   - job: BuildWin
     pool:
