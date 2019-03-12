@@ -16,12 +16,15 @@ jobs:
       - task: CmdLine@2
         inputs:
           script: |
+            brew update
             brew install pkg-config
-            brew install zeromq
+            brew install zmq
           displayName: 'Install build tools'
       - script: |
           sudo npm install yarn -g
-          sudo pip install pyinstaller
+          sudo pip install virtualenv
+          virtualenv venv -p python3
+          venv/bin/pip install pyinstaller
           sudo npm install -g node-gyp
           sudo yarn
           sudo yarn package
@@ -31,7 +34,7 @@ jobs:
       - task: PublishPipelineArtifact@0
         inputs:
           artifactName: 'artifactName'
-          targetPath: 'release/mac/ElectronReact.app'
+          targetPath: 'release/ElectronReact-1.0.0.dmg'
       - task: UsePythonVersion@0
         inputs:
           versionSpec: '3.5'
@@ -67,4 +70,6 @@ jobs:
             npm install yarn -g
             yarn
             yarn package
+            cd release
+            ls
           displayName: 'yarn'
