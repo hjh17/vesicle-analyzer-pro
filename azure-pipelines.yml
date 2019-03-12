@@ -50,7 +50,7 @@ jobs:
         inputs:
           script: |
             brew install pkg-config
-            brew install zmq
+            brew install zeromq
           displayName: 'Install build tools'
       - script: |
           sudo npm install yarn -g
