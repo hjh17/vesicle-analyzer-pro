@@ -14,7 +14,7 @@ class Server:
                 if dir(self).__contains__(method):
                     print("you have register method:" + method)
                     sys.exit(0)
-                setattr(self, method, getattr(obj, method))
+                setattr(self, method, getattr(obj, method)) 
 
 
 def main(port):
