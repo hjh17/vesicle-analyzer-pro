@@ -2,4 +2,13 @@
 
 # Vesicle Analyser Pro
 
-tbd
+Work in progress.
+
+Please contact me (hjorturh88@gmail.com) for setup, instructions etc...
+
+## Citation
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2592469.svg)](https://doi.org/10.5281/zenodo.2592469)
+
+## License
+
+MIT © [HH](hjorturh88@gmail.com)
