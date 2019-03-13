@@ -11,4 +11,4 @@ Please contact me (hjorturh88@gmail.com) for setup, instructions etc...
 
 ## License
 
-MIT © [HH](hjorturh88@gmail.com)
+MIT © [HH](mailto:hjorturh88@gmail.com)
