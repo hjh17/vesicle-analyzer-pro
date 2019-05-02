@@ -4,7 +4,7 @@
 
 Data processing tool for microscopic images of vesicles. Work in progress.
 
-![demo](https://srv-file2.gofile.io/download/zvFKIn/d3404d8e796a3b4ee1d7f25a6ea46013/demo.gif)
+![demo](https://media.giphy.com/media/gLpAzZkzEEv2bwOmGf/giphy.gif)
 
 
 ## Dev setup
