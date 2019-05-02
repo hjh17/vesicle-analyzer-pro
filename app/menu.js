@@ -48,7 +48,7 @@ export default class MenuBuilder {
       label: 'Electron',
       submenu: [
         {
-          label: 'About ElectronReact',
+          label: 'About Vesicle Analyzer Pro',
           selector: 'orderFrontStandardAboutPanel:'
         },
         { type: 'separator' },

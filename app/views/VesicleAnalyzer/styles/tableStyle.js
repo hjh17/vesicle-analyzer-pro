@@ -3,10 +3,11 @@ const tableStyle = theme =>  ({
     width: '300px',
     height: '300px',
     border: "thick solid black",
-    position: "absolute",
+    //position: "absolute",
     top: "400px",
     backgroundColor: "white",
-    overflowY: 'scroll'
+    overflowY: 'scroll',
+    marginTop: "100px"
   },
   root: {
     width: '100%',
